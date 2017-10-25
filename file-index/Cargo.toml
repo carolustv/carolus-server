@@ -1,0 +1,8 @@
+[package]
+name = "file_index"
+version = "0.1.0"
+authors = ["simon"]
+
+[dependencies]
+glob = "*"
+data = { path = "../data" }

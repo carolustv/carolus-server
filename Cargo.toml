@@ -1,0 +1,16 @@
+[package]
+name = "carolus"
+version = "0.1.0"
+authors = ["Simon Dickson <simon@simonhdickson.com>"]
+
+[dependencies]
+dotenv = "0.9.0"
+iron = "*"
+staticfile = "*"
+router = "*"
+mount = { git = "https://github.com/iron/mount.git" }
+rust-crypto = "^0.2"
+serde = "1.0"
+serde_derive = "1.0"
+file_index  =  { path = "file-index" }
+data = { path = "data" }
