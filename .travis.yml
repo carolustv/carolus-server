@@ -1,55 +1,36 @@
-# Based on the "trust" template v0.1.1
-# https://github.com/japaric/trust/tree/v0.1.1
-
 dist: trusty
 language: rust
 services: docker
 sudo: required
 
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y sqlite3
+
 env:
-  global:
-    - CRATE_NAME=carolus-server
+  matrix:
+    - BACKEND=sqlite
+      SQLITE_DATABASE_URL=/tmp/carolus.db
 
 matrix:
   include:
-    # Main Platforms
     - env: TARGET=x86_64-unknown-linux-gnu
-    - env: TARGET=x86_64-unknown-linux-musl
-
-    # Other architectures
-    - env: TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
-    - env: TARGET=armv7-unknown-linux-gnueabihf
-
-    # Nightly
-    - env: TARGET=x86_64-unknown-linux-gnu
-      rust: nightly
-
-before_install:
-  - set -e
-  - rustup self update
-
-install:
-  - sh ci/install.sh
-  - source ~/.cargo/env || true
 
 before_script:
-  - echo 'DATABASE_URL="db/carolus.db"' > .env
+  - echo 'DATABASE_URL="/tmp/carolus.db"' > .env
   - cargo install diesel_cli --no-default-features --features=sqlite
-  - diesel database setup
+  - diesel migration run
 
 script:
-  - bash ci/script.sh
-
-after_script: set +e
+  - cargo build --verbose --all
+  - cargo test --verbose --all
 
 cache: cargo
 before_cache:
-  # Travis can't cache files that are not readable by "others"
   - chmod -R a+r $HOME/.cargo
 
 branches:
   only:
-    # release tags
     - /^v\d+\.\d+\.\d+.*$/
     - master
 

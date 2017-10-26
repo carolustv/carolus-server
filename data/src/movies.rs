@@ -41,5 +41,5 @@ pub fn get_movie(conn: &SqliteConnection, id: i64) -> Movie {
 
     movies.find(id)
         .first::<Movie>(conn)
-        .expect("Error loading movies")
+        .expect("Error loading movie")
 }
