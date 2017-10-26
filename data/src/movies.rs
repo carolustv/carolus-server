@@ -19,7 +19,7 @@ pub fn create_movie<'a>(conn: &SqliteConnection, title: &'a str, file_path: &'a 
         diesel::insert_or_replace(&new_movie)
             .into(movies::table)
             .execute(conn)
-            .expect("Error saving new post");
+            .expect("Error saving new movie");
 
     Movie {
         id: id as i32,
@@ -34,7 +34,7 @@ pub fn page_movies(conn: &SqliteConnection, page: i64, count: i64) -> Vec<Movie>
     movies.offset(page * count)
         .limit(count)
         .load::<Movie>(conn)
-        .expect("Error loading posts")
+        .expect("Error loading movies")
 }
 
 pub fn get_movie(conn: &SqliteConnection, id: i64) -> Movie {
@@ -42,5 +42,5 @@ pub fn get_movie(conn: &SqliteConnection, id: i64) -> Movie {
 
     movies.find(id)
         .first::<Movie>(conn)
-        .expect("Error loading posts")
+        .expect("Error loading movies")
 }
