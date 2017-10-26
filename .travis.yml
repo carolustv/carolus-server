@@ -35,7 +35,7 @@ install:
 before_script:
   - echo 'DATABASE_URL="db/carolus.db"' > .env
   - cargo install diesel_cli --no-default-features --features=sqlite
-  - diesel migration run
+  - diesel database setup
 
 script:
   - bash ci/script.sh
