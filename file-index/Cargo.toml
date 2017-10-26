@@ -6,3 +6,6 @@ authors = ["simon"]
 [dependencies]
 glob = "*"
 data = { path = "../data" }
+blake2 = "0.6"
+digest = { version = "0.6", features = ["std"]}
+base64 = "0.7.0"

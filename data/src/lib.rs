@@ -6,6 +6,7 @@
 
 #[macro_use] extern crate diesel_codegen;
 #[macro_use] extern crate diesel;
+extern crate chrono;
 
 pub mod init;
 pub mod schema;

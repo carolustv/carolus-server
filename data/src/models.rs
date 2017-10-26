@@ -5,12 +5,15 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use schema::movies;
+use chrono::prelude::*;
 
 #[derive(Queryable)]
 pub struct Movie {
     pub id: i32,
     pub title: String,
     pub file_path: String,
+    pub file_hash: String,
+    pub created_date: NaiveDateTime,
 }
 
 #[derive(Insertable)]
@@ -18,4 +21,6 @@ pub struct Movie {
 pub struct NewMovie<'a> {
     pub title: &'a str,
     pub file_path: &'a str,
+    pub file_hash: &'a str,
+    pub created_date: NaiveDateTime,
 }

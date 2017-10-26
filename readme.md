@@ -1,8 +1,15 @@
 [![Build Status](https://travis-ci.org/carolustv/carolus-server.svg?branch=master)](https://travis-ci.org/carolustv/carolus-server)
 
-# Carolus 
+# Carolus
 
-Work in Progress
+Quick start:
+
+```bash
+echo 'CAROLUS_MOVIES_PATH="/my/movies/path"' > .env
+cargo run
+```
+
+Currently only supports mp4 files.
 
 ## License
 
