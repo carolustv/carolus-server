@@ -4,17 +4,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use std::io;
 use std::path::Path;
-use std::collections::HashMap;
 
-use iron::prelude::*;
-use iron::status;
-use router::Router;
-use url::form_urlencoded;
+use rocket::Route;
+use rocket::response::NamedFile;
+use rocket_contrib::JsonValue;
 
 use data::init::establish_connection;
 use data::movies::{page_movies, get_movie};
-use video::play_video;
+use partial_file::serve_partial;
 
 #[derive(Serialize)]
 pub struct Movie {
@@ -22,35 +21,37 @@ pub struct Movie {
     pub play_path: String
 }
 
-pub fn all_movies(req: &mut Request) ->  IronResult<Response> {
+#[derive(FromForm)]
+pub struct PageRequest {
+    page: Option<i64>,
+    count: Option<i64>
+}
+
+#[get("/")]
+pub fn all_movies_root() -> JsonValue {
+    all_movies(PageRequest{ page: Some(0), count: Some(10)})
+}
+
+#[get("/?<page_request>")]
+pub fn all_movies(page_request: PageRequest) -> JsonValue {
     let conn = establish_connection();
-    let (page, count) = match req.url.query() {
-        Some (query) => {
-            let parse: HashMap<_,_> = form_urlencoded::parse(query.as_bytes()).into_owned().collect();
-            let page = match parse.get("page") { Some (x) => x.parse::<i64>().unwrap(), None => 0 };
-            let count = match parse.get("count") { Some (x) => x.parse::<i64>().unwrap(), None => 10 };
-            (page, count)
-        },
-        None => (0, 10)
-    };
+    let page = match page_request.page { Some(v) => v, None => 0 };
+    let count = match page_request.count { Some(v) => v, None => 10 };
     
     let movies = page_movies(&conn, page, count);
-    let result = json!({
-        "results": movies.into_iter().map(|m| Movie { title: m.title, play_path: url_for!(req, "play", "movie_id" => m.id.to_string()).to_string()  }).collect::<Vec<_>>(),
-    });
-    Ok(Response::with((status::Ok, result.to_string())))
+    
+    json!({
+        "results": movies.into_iter().map(|m| Movie { title: m.title, play_path: uri!("/api/movies/play", play_movie: m.id).to_string() }).collect::<Vec<_>>(),
+    })
 }
 
-pub fn play_movie(req: &mut Request) ->  IronResult<Response> {
+#[get("/play/<movie_id>")]
+pub fn play_movie(movie_id: i32) -> io::Result<NamedFile>  {
     let conn = establish_connection();
-    let movie_id = req.extensions.get::<Router>().unwrap().find("movie_id").unwrap_or("/").parse::<i64>().unwrap();
-    let movie = get_movie(&conn, movie_id);
-    play_video(req, Path::new(&movie.file_path))
+    let movie = get_movie(&conn, movie_id as i64);
+    serve_partial(Path::new(&movie.file_path))
 }
 
-pub fn register() -> Router {
-    router!{
-        all_movies: get "/" => all_movies,
-        play: get "/play/:movie_id" => play_movie,
-    }
+pub fn routes() -> Vec<Route> {
+    routes![all_movies_root, all_movies, play_movie]
 }
