@@ -6,7 +6,7 @@
 
 use std::cmp;
 use std::fs::File;
-use std::io::{self, BufReader};
+use std::io::{self, BufReader, SeekFrom, Seek, Read};
 use std::str::FromStr;
 use std::path::{Path, PathBuf};
 
@@ -44,22 +44,21 @@ impl From<Vec<ByteRangeSpec>> for PartialFileRange {
 #[derive(Debug)]
 pub struct PartialFile {
     path: PathBuf,
-    file: File,
-    range: PartialFileRange,
+    file: File
 }
 
 impl PartialFile {
-    pub fn from_path<P: AsRef<Path>, Range>(path: P, range: Range) -> io::Result<PartialFile>
-        where Range: Into<PartialFileRange> {
+    pub fn open<P: AsRef<Path>>(path: P) -> io::Result<PartialFile> {
         let file = File::open(path.as_ref())?;
-        Ok(PartialFile{ path: path.as_ref().to_path_buf(), file: file, range: range.into()})
+        Ok(PartialFile{ path: path.as_ref().to_path_buf(), file: file })
     }
 
-    pub fn get_partial<'a>(&self, response: &Response<'a>) -> Response<'a> {
+    pub fn get_partial<Range>(self, response: &mut Response, range: Range) 
+        where Range: Into<PartialFileRange> {
         use self::PartialFileRange::*;
         let metadata : Option<_> = self.file.metadata().ok();
         let file_length : Option<u64> = metadata.map(|m| m.len());
-        let range : Option<(u64, u64)> = match (self.range, file_length) {
+        let range : Option<(u64, u64)> = match (range.into(), file_length) {
             (FromTo(from, to), Some(file_length)) => {
                 if from <= to && from < file_length {
                     Some((from, cmp::min(to, file_length - 1)))
@@ -92,14 +91,11 @@ impl PartialFile {
             let content_len = range.1 - range.0 + 1;
             response.set_header(ContentLength(content_len));
             response.set_header(content_range);
-            let partial_content = BufReader::new(self.file);
-            //let partial_content = PartialContentBody {
-            //    file: self.file,
-            //    offset: range.0,
-            //    len: content_len,
-            //};
+            let mut partial_content = BufReader::new(self.file);
+            let _ = partial_content.seek(SeekFrom::Start(range.0));
+            let result = partial_content.take(content_len);
             response.set_status(Status::PartialContent);
-            response.set_streamed_body(partial_content);
+            response.set_streamed_body(result);
         } else {
             if let Some(file_length) = file_length {
                 response.set_header(ContentRange(ContentRangeSpec::Bytes {
@@ -109,7 +105,6 @@ impl PartialFile {
             };
             response.set_status(Status::RangeNotSatisfiable);
         };
-        response
     }
 }
 
@@ -121,12 +116,8 @@ impl Responder<'static> for PartialFile {
             Some (range) => {
                 match Range::from_str(range) {
                     Ok(Range::Bytes(ref v)) => {
-                        if let Ok(partial_file) = PartialFile::from_path(self.path, v.clone()) {
-                            response = self.get_partial(response);
-                            response.set_status(Status::PartialContent);
-                        } else {
-                            response.set_status(Status::NotFound);
-                        }
+                        self.get_partial(&mut response, v.clone());
+                        response.set_status(Status::PartialContent);
                     },
                     _ => {
                         response.set_status(Status::RangeNotSatisfiable);
@@ -141,6 +132,6 @@ impl Responder<'static> for PartialFile {
     }
 }
 
-pub fn serve_partial(video_path: &Path) -> io::Result<NamedFile> {    
-    NamedFile::open(video_path)
+pub fn serve_partial(video_path: &Path) -> io::Result<PartialFile> {    
+    PartialFile::open(video_path)
 }

@@ -7,13 +7,13 @@
 use std::io;
 use std::path::Path;
 
+use rocket::request::Request;
 use rocket::Route;
-use rocket::response::NamedFile;
 use rocket_contrib::JsonValue;
 
 use data::init::establish_connection;
 use data::movies::{page_movies, get_movie};
-use partial_file::serve_partial;
+use partial_file::{serve_partial, PartialFile};
 
 #[derive(Serialize)]
 pub struct Movie {
@@ -46,7 +46,7 @@ pub fn all_movies(page_request: PageRequest) -> JsonValue {
 }
 
 #[get("/play/<movie_id>")]
-pub fn play_movie(movie_id: i32) -> io::Result<NamedFile>  {
+pub fn play_movie(movie_id: i32) -> io::Result<PartialFile>  {
     let conn = establish_connection();
     let movie = get_movie(&conn, movie_id as i64);
     serve_partial(Path::new(&movie.file_path))
