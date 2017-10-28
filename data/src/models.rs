@@ -12,7 +12,6 @@ pub struct Movie {
     pub id: i32,
     pub title: String,
     pub file_path: String,
-    pub file_hash: String,
     pub created_date: NaiveDateTime,
 }
 
@@ -21,6 +20,5 @@ pub struct Movie {
 pub struct NewMovie<'a> {
     pub title: &'a str,
     pub file_path: &'a str,
-    pub file_hash: &'a str,
     pub created_date: NaiveDateTime,
 }

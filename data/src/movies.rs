@@ -10,11 +10,10 @@ use diesel::prelude::*;
 use chrono::prelude::*;
 use diesel;
 
-pub fn create_movie<'a>(conn: &SqliteConnection, title: &'a str, file_path: &'a str, file_hash: &'a str) -> Movie {
+pub fn create_movie<'a>(conn: &SqliteConnection, title: &'a str, file_path: &'a str) -> Movie {
     let new_movie = NewMovie {
         title: title,
         file_path: file_path,
-        file_hash: file_hash,
         created_date: Utc::now().naive_utc(),
     };
 

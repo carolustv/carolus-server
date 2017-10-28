@@ -9,12 +9,9 @@ extern crate data;
 extern crate glob;
 extern crate base64;
 
-
-use std::{fs,env};
+use std::env;
 use std::path::PathBuf;
 
-use base64::encode;
-use blake2::{Blake2b, Digest};
 use glob::glob;
 
 use data::init::establish_connection;
@@ -33,17 +30,11 @@ fn index_movie_directory(add_movie: &Fn(&PathBuf)) {
     }
 }
 
-fn hash_file(path: &PathBuf) -> String {
-    let mut file = fs::File::open(&path).unwrap();
-    encode(Blake2b::digest_reader(&mut file).unwrap().as_ref())
-}
-
 pub fn index() {
     let conn = establish_connection();
     index_movie_directory(&|movie|{
         let movie_name = movie.file_name().unwrap().to_str().unwrap();
         let file_path = movie.to_str().unwrap();
-        let file_hash = hash_file(movie);
-        create_movie(&conn, &movie_name, &file_path, &file_hash);
+        create_movie(&conn, &movie_name, &file_path);
     });
 }
