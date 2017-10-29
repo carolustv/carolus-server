@@ -11,8 +11,8 @@ use std::str::FromStr;
 use std::path::{Path, PathBuf};
 
 use rocket::request::Request;
-use rocket::response::{NamedFile, Response, Responder};
-use rocket::http::{Status, ContentType};
+use rocket::response::{Response, Responder};
+use rocket::http::Status;
 use rocket::http::hyper::header::{ByteRangeSpec, ContentRangeSpec, AcceptRanges, RangeUnit, Range, ContentRange, ContentLength};
 
 #[derive(Debug)]

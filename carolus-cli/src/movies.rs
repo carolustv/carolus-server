@@ -7,7 +7,6 @@
 use std::io;
 use std::path::Path;
 
-use rocket::request::Request;
 use rocket::Route;
 use rocket_contrib::JsonValue;
 

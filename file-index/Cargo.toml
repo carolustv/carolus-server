@@ -1,7 +1,7 @@
 [package]
 name = "file_index"
 version = "0.1.0"
-authors = ["simon"]
+authors = ["Simon Dickson <simon@simonhdickson.com>"]
 
 [dependencies]
 glob = "*"
@@ -9,3 +9,5 @@ data = { path = "../data" }
 blake2 = "0.6"
 digest = { version = "0.6", features = ["std"]}
 base64 = "0.7.0"
+regex = "0.2"
+lazy_static = "*"
