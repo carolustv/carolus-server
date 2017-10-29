@@ -1,0 +1,7 @@
+[package]
+name = "provider"
+version = "0.1.0"
+authors = ["Simon Dickson <simon@simonhdickson.com>"]
+
+[dependencies]
+reqwest = "*"
