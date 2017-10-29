@@ -58,3 +58,13 @@ fn great_escape(){
         result => assert!(false, result)
     }
 }
+
+#[test]
+fn die_hard(){
+    match parse(Path::new("/storage/movies/Die Hard.m4v")) {
+        Ok(ParseResult::Movie { title, year: None }) => {
+            assert_eq!("Die Hard", title);
+        }
+        result => assert!(false, result)
+    }
+}
