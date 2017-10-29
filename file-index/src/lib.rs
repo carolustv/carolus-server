@@ -13,4 +13,4 @@ extern crate glob;
 extern crate base64;
 
 mod file_name;
-mod index;
+pub mod index;

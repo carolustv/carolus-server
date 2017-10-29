@@ -27,7 +27,7 @@ pub fn index() {
         match file_name::parse(movie_path) {
             Ok(ParseResult::Movie{ title, ..}) => {
                 let file_path = movie_path.to_str().unwrap();
-                info!();
+                info!("Add movie: {}", title);
                 create_movie(&conn, &title, &file_path);
             },
             Err(err) => error!("Unexpected error parsing file: {}", err)
