@@ -5,25 +5,36 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use models::{Movie, NewMovie};
-use schema::movies;
+use schema;
 use diesel::prelude::*;
 use chrono::prelude::*;
 use diesel;
 
-pub fn create_movie<'a>(conn: &SqliteConnection, title: &'a str, file_path: &'a str) -> Movie {
+pub fn create_movie<'a>(conn: &SqliteConnection, movie_title: &'a str, movie_file_path: &'a str) -> Movie {
+    use schema::movies::dsl::*;
+
     let new_movie = NewMovie {
-        title: title,
-        file_path: file_path,
+        title: movie_title,
+        file_path: movie_file_path,
         created_date: Utc::now().naive_utc(),
     };
 
-    let id =
-        diesel::insert_or_replace(&new_movie)
-            .into(movies::table)
-            .execute(conn)
-            .expect("Error saving new movie");
+    let movie_id : Result<i32, _> =
+        movies.filter(file_path.eq(movie_file_path))
+            .select(id)
+            .first(conn);
 
-    get_movie(conn, id as i64)
+    let movie_id =
+        match movie_id {
+            Ok(movie_id) => movie_id as usize,
+            Err(_) => {
+                diesel::insert(&new_movie)
+                    .into(schema::movies::table)
+                    .execute(conn)
+                    .expect("Error saving new movie")
+            }
+        };
+    get_movie(conn, movie_id as i64)
 }
 
 pub fn page_movies(conn: &SqliteConnection, page: i64, count: i64) -> Vec<Movie> {
@@ -35,10 +46,10 @@ pub fn page_movies(conn: &SqliteConnection, page: i64, count: i64) -> Vec<Movie>
         .expect("Error loading movies")
 }
 
-pub fn get_movie(conn: &SqliteConnection, id: i64) -> Movie {
+pub fn get_movie(conn: &SqliteConnection, movie_id: i64) -> Movie {
     use schema::movies::dsl::*;
 
-    movies.find(id)
+    movies.find(movie_id as i32)
         .first::<Movie>(conn)
         .expect("Error loading movie")
 }

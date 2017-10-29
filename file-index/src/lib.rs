@@ -21,7 +21,7 @@ fn index_movie_directory(add_movie: &Fn(&PathBuf)) {
     match env::var("CAROLUS_MOVIES_PATH") {
         Ok (directories) => {
             for directory in directories.split(",") {
-                for file in glob(&format!("{}/*.mp4", &directory)).unwrap().filter_map(Result::ok) {
+                for file in glob(&format!("{}/**/*.mp4", &directory)).unwrap().filter_map(Result::ok) {
                     add_movie(&file);
                 }
             }

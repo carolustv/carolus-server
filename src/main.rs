@@ -11,7 +11,6 @@
 
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate rocket_contrib;
-extern crate rocket_codegen;
 extern crate rocket;
 extern crate serde;
 extern crate dotenv;
