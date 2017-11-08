@@ -2,4 +2,4 @@
 **/*.rs.bk
 .vscode/
 db/
-.env
+.envrc
