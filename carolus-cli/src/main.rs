@@ -8,22 +8,19 @@
 #![feature(decl_macro)]
 #![plugin(rocket_codegen)]
 
-
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate rocket_contrib;
 extern crate rocket;
 extern crate serde;
-extern crate dotenv;
 extern crate data;
 extern crate file_index;
 
 mod partial_file;
 mod movies;
 
-use dotenv::dotenv;
+use file_index::index;
 
 fn main() {
-    dotenv().ok();
-    file_index::index();
+    index::index();
     rocket::ignite().mount("/api/movies", movies::routes()).launch();
 }

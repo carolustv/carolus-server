@@ -3,4 +3,5 @@ members = [
     "carolus-cli",
     "file-index",
     "data",
+    "provider",
 ]
