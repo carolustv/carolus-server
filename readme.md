@@ -14,6 +14,12 @@ curl http://localhost:3000/api/movies
 
 Currently only supports mp4 files.
 
+## Database setup
+
+- install diesel_cli for sqlite `cargo install diesel_cli --no-default-features --features-sqlite`
+- set database path `echo 'DATABASE_URL=/path/to/sqlite.db >> .env'`
+- set up / migrate database `diesel database setup`
+
 ## License
 
 This Source Code Form is subject to the terms of the Mozilla Public
