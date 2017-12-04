@@ -4,9 +4,10 @@ use std::path::PathBuf;
 
 use glob::glob;
 
-use file_name::{self, ParseResult};
 use data::init::establish_connection;
 use data::movies::create_movie;
+
+use file_index::file_name::{self, ParseResult};
 
 fn index_movie_directory(add_movie: &Fn(&PathBuf)) {
     match env::var("CAROLUS_MOVIES_PATH") {

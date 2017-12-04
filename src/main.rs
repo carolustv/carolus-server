@@ -8,15 +8,24 @@
 #![feature(decl_macro)]
 #![plugin(rocket_codegen)]
 
+#[macro_use] extern crate diesel_codegen;
+#[macro_use] extern crate diesel;
+#[macro_use] extern crate lazy_static;
+#[macro_use] extern crate log;
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate rocket_contrib;
+extern crate regex;
+extern crate blake2;
+extern crate glob;
+extern crate base64;
 extern crate rocket;
 extern crate serde;
-extern crate data;
-extern crate file_index;
+extern crate chrono;
 
-mod partial_file;
-mod movies;
+pub mod data;
+pub mod partial_file;
+pub mod movies;
+pub mod file_index;
 
 use file_index::index;
 
