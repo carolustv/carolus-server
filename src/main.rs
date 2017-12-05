@@ -14,16 +14,21 @@
 #[macro_use] extern crate log;
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate rocket_contrib;
+extern crate failure;
+extern crate serde;
+extern crate serde_json;
+extern crate reqwest;
+extern crate url;
 extern crate regex;
 extern crate blake2;
 extern crate glob;
 extern crate base64;
 extern crate rocket;
-extern crate serde;
 extern crate chrono;
 
 pub mod data;
 pub mod partial_file;
+pub mod provider;
 pub mod movies;
 pub mod file_index;
 
