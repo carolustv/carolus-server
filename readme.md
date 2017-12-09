@@ -11,8 +11,11 @@ echo 'CAROLUS_MOVIES_PATH="/my/movies/path"' > .env
 cargo run &
 curl http://localhost:3000/api/movies
 ```
+## Dependencies
 
-Currently only supports mp4 files.
+You will need this on your path:
+
+* Guessit (https://github.com/guessit-io/guessit)
 
 ## Database setup
 

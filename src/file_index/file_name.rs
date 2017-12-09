@@ -4,34 +4,36 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use std::io;
 use std::path::Path;
+use std::process::Command;
 
-use regex::Regex;
+use failure::Error;
+use serde_json;
 
-pub enum ParseResult {
-    Movie { title: String, year: Option<i32> }
+#[derive(Deserialize)]
+pub struct Movie { 
+    pub title: String,
+    pub year: Option<i32>,
 }
 
-pub fn parse(path: &Path) -> io::Result<ParseResult> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"([^']+)\s+\((\d{4})\)").unwrap();
-    }
+pub fn parse_movie(path: &Path) -> Result<Movie, Error> {
     let filename = path.file_stem().unwrap().to_str().unwrap();
-    match RE.captures(filename) {
-        Some(caps) => {
-            let title = caps.get(1).unwrap().as_str();
-            let year = caps.get(2).map(|x|x.as_str().parse::<i32>().ok()).unwrap_or_default();
-            Ok(ParseResult::Movie { title: title.to_owned(), year: year })
-        }
-        _ => Ok(ParseResult::Movie { title: filename.to_owned(), year: None }),
-    }
+    let output =
+        Command::new("guessit")
+            .arg("--json")
+            .arg(filename)
+            .output()
+            .expect("failed to execute process");
+
+    let m: Movie = serde_json::from_str(&String::from_utf8_lossy(&output.stdout))?;
+
+    Ok(m)
 }
 
 #[test]
 fn a_clockwork_orange(){
-    match parse(Path::new("A Clockwork Orange (1971).mkv")) {
-        Ok(ParseResult::Movie { title, year: Some (year) }) => {
+    match parse_movie(Path::new("A Clockwork Orange (1971).mkv")) {
+        Ok(Movie { title, year: Some (year) }) => {
             assert_eq!("A Clockwork Orange", title);
             assert_eq!(1971, year);
         }
@@ -41,8 +43,8 @@ fn a_clockwork_orange(){
 
 #[test]
 fn american_history_x(){
-    match parse(Path::new("American History X.mp4")) {
-        Ok(ParseResult::Movie { title, year: None }) => {
+    match parse_movie(Path::new("American History X.mp4")) {
+        Ok(Movie { title, year: None }) => {
             assert_eq!("American History X", title);
         }
         result => assert!(false, result)
@@ -51,8 +53,8 @@ fn american_history_x(){
 
 #[test]
 fn great_escape(){
-    match parse(Path::new("Great Escape.m4v")) {
-        Ok(ParseResult::Movie { title, year: None }) => {
+    match parse_movie(Path::new("Great Escape.m4v")) {
+        Ok(Movie { title, year: None }) => {
             assert_eq!("Great Escape", title);
         }
         result => assert!(false, result)
@@ -61,8 +63,8 @@ fn great_escape(){
 
 #[test]
 fn die_hard(){
-    match parse(Path::new("/storage/movies/Die Hard.m4v")) {
-        Ok(ParseResult::Movie { title, year: None }) => {
+    match parse_movie(Path::new("/storage/movies/Die Hard.m4v")) {
+        Ok(Movie { title, year: None }) => {
             assert_eq!("Die Hard", title);
         }
         result => assert!(false, result)
