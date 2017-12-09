@@ -4,7 +4,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use std::path::Path;
 use std::process::Command;
 
 use failure::Error;
@@ -16,23 +15,21 @@ pub struct Movie {
     pub year: Option<i32>,
 }
 
-pub fn parse_movie(path: &Path) -> Result<Movie, Error> {
-    let filename = path.file_stem().unwrap().to_str().unwrap();
+pub fn parse(filepath: &str) -> Result<Movie, Error> {
     let output =
         Command::new("guessit")
+            .args(&["-t", "movie"])
             .arg("--json")
-            .arg(filename)
+            .arg(filepath)
             .output()
             .expect("failed to execute process");
 
-    let m: Movie = serde_json::from_str(&String::from_utf8_lossy(&output.stdout))?;
-
-    Ok(m)
+    Ok(serde_json::from_str(&String::from_utf8_lossy(&output.stdout))?)
 }
 
 #[test]
 fn a_clockwork_orange(){
-    match parse_movie(Path::new("A Clockwork Orange (1971).mkv")) {
+    match parse("A Clockwork Orange (1971).mkv") {
         Ok(Movie { title, year: Some (year) }) => {
             assert_eq!("A Clockwork Orange", title);
             assert_eq!(1971, year);
@@ -43,7 +40,7 @@ fn a_clockwork_orange(){
 
 #[test]
 fn american_history_x(){
-    match parse_movie(Path::new("American History X.mp4")) {
+    match parse("American History X.mp4") {
         Ok(Movie { title, year: None }) => {
             assert_eq!("American History X", title);
         }
@@ -53,7 +50,7 @@ fn american_history_x(){
 
 #[test]
 fn great_escape(){
-    match parse_movie(Path::new("Great Escape.m4v")) {
+    match parse("Great Escape.m4v") {
         Ok(Movie { title, year: None }) => {
             assert_eq!("Great Escape", title);
         }
@@ -63,7 +60,7 @@ fn great_escape(){
 
 #[test]
 fn die_hard(){
-    match parse_movie(Path::new("/storage/movies/Die Hard.m4v")) {
+    match parse("/storage/movies/Die Hard.m4v") {
         Ok(Movie { title, year: None }) => {
             assert_eq!("Die Hard", title);
         }
