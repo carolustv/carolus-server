@@ -10,6 +10,7 @@ serde = "1.0"
 serde_derive = "1.0"
 diesel = { version = "0.16.0", features = ["sqlite", "chrono"] }
 diesel_codegen = { version = "0.16.0", features = ["sqlite"] }
+libsqlite3-sys = "*"
 chrono = "*"
 reqwest = "*"
 url = "*"
@@ -22,8 +23,11 @@ regex = "0.2"
 lazy_static = "*"
 log = "*"
 
-
 [dependencies.rocket_contrib]
 git = "https://github.com/SergioBenitez/Rocket"
 default-features = false
 features = ["json"]
+
+[features]
+tls = ["rocket/tls"]
+sqlite-bundled = ["libsqlite3-sys/bundled"]

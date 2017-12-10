@@ -17,8 +17,22 @@ Currently only supports mp4 files.
 ## Database setup
 
 - install diesel_cli for sqlite `cargo install diesel_cli --no-default-features --features-sqlite`
-- set database path `echo 'DATABASE_URL=/path/to/sqlite.db >> .env'`
+- set database path `export DATABASE_URL=/path/to/sqlite.db`
 - set up / migrate database `diesel database setup`
+
+## TLS support
+
+Compile with the `tls` flag and run the following:
+
+```bash
+openssl req -newkey rsa:4096 -nodes -sha512 -x509 -days 365 -nodes -out cert.pem -keyout key.pem
+export ROCKET_TLS={certs="cert.pem",key="key.pem"}
+```
+
+## Windows
+
+You may currently have some other issues running on Windows, but compling with the `sqlite-bundle`
+feature can help if you compile issues related to sqlite.
 
 ## License
 
