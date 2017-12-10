@@ -8,6 +8,7 @@ Quick start:
 
 ```bash
 echo 'CAROLUS_MOVIES_PATH="/my/movies/path"' > .env
+echo 'CAROLUS_TV_PATH="/my/tv/path"' >> .env
 cargo run &
 curl http://localhost:3000/api/movies
 ```
