@@ -22,17 +22,21 @@ Currently only supports mp4 files.
 
 ## TLS support
 
+A quick way to get started with using tls is included in the repo (taken
+from ["Rocket"](https://github.com/SergioBenitez/Rocket/tree/master/examples/tls)
 Compile with the `tls` flag and run the following:
 
 ```bash
-openssl req -newkey rsa:4096 -nodes -sha512 -x509 -days 365 -nodes -out cert.pem -keyout key.pem
-export ROCKET_TLS={certs="cert.pem",key="key.pem"}
+(cd private && bash ./gen_cert.sh)
+export ROCKET_TLS={certs="private/ca_cert.pem",key="private/ca_key.pem"}
+cargo run --feature=tls &
 ```
 
 ## Windows
 
-You may currently have some other issues running on Windows, but compling with the `sqlite-bundle`
-feature can help if you compile issues related to sqlite.
+You may currently have some other issues running on Windows, but compling
+with the `sqlite-bundle` feature can help if you compile issues related to
+sqlite.
 
 ## License
 
