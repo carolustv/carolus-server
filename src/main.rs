@@ -29,6 +29,7 @@ pub mod data;
 pub mod partial_file;
 pub mod provider;
 pub mod movies;
+pub mod tv;
 pub mod file_index;
 
 use file_index::index;
