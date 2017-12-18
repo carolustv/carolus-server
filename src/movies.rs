@@ -30,7 +30,7 @@ pub struct PageRequest {
 
 #[get("/")]
 pub fn all_movies_root() -> JsonValue {
-    all_movies(PageRequest{ page: Some(0), count: Some(10)})
+    all_movies(PageRequest{ page: None, count: None })
 }
 
 #[get("/?<page_request>")]
@@ -40,13 +40,16 @@ pub fn all_movies(page_request: PageRequest) -> JsonValue {
     let count = match page_request.count { Some(v) => v, None => 10 };
     
     let movies = page_movies(&conn, page, count);
+
+    let ip_address = env!("ROCKET_ADDRESS");
+    let port = env!("ROCKET_PORT");
     
     json!({
         "results": movies.into_iter().map(|m| Movie { 
             title: m.title,
-            background_image: "https://storage.googleapis.com/android-tv/Sample%20videos/Google%2B/Google%2B_%20Instant%20Upload/bg.jpg".to_owned(),
-            card_image: "https://storage.googleapis.com/android-tv/Sample%20videos/Google%2B/Google%2B_%20Instant%20Upload/card.jpg".to_owned(),
-            video_url: format!("http::192.168.1.233:8080/api/movies/play/{}", m.id).to_owned()
+            background_image: "".to_owned(), //m.background_image,
+            card_image: "".to_owned(), //m.card_image,
+            video_url: format!("http://{}:{}/api/movies/play/{}", ip_address, port, m.id).to_owned()
         }).collect::<Vec<_>>(),
     })
 }
