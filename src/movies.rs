@@ -8,7 +8,7 @@ use std::io;
 use std::path::Path;
 
 use rocket::Route;
-use rocket_contrib::JsonValue;
+use rocket_contrib::Json;
 
 use data::init::establish_connection;
 use data::movies::{page_movies, get_movie};
@@ -29,12 +29,12 @@ pub struct PageRequest {
 }
 
 #[get("/")]
-pub fn all_movies_root() -> JsonValue {
+pub fn all_movies_root() -> Json {
     all_movies(PageRequest{ page: None, count: None })
 }
 
 #[get("/?<page_request>")]
-pub fn all_movies(page_request: PageRequest) -> JsonValue {
+pub fn all_movies(page_request: PageRequest) -> Json {
     let conn = establish_connection();
     let page = match page_request.page { Some(v) => v, None => 0 };
     let count = match page_request.count { Some(v) => v, None => 10 };
@@ -44,14 +44,14 @@ pub fn all_movies(page_request: PageRequest) -> JsonValue {
     let ip_address = env!("ROCKET_ADDRESS");
     let port = env!("ROCKET_PORT");
     
-    json!({
+    Json(json!({
         "results": movies.into_iter().map(|m| Movie { 
             title: m.title,
             background_image: "".to_owned(), //m.background_image,
             card_image: "".to_owned(), //m.card_image,
             video_url: format!("http://{}:{}/api/movies/play/{}", ip_address, port, m.id).to_owned()
         }).collect::<Vec<_>>(),
-    })
+    }))
 }
 
 #[get("/play/<movie_id>")]
