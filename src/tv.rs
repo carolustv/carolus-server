@@ -8,6 +8,8 @@ use std::io;
 use std::path::Path;
 
 use rocket::Route;
+use rocket::State;
+use rocket::config::Config;
 use rocket_contrib::Json;
 
 use data::init::establish_connection;
@@ -37,27 +39,24 @@ pub struct PageRequest {
 }
 
 #[get("/")]
-pub fn all_tv_series_root() -> Json {
-    all_tv_series(PageRequest{ page: None, count: None })
+pub fn all_tv_series_root(config: State<Config>) -> Json {
+    all_tv_series(config, PageRequest{ page: None, count: None })
 }
 
 #[get("/?<page_request>")]
-pub fn all_tv_series(page_request: PageRequest) -> Json {
+pub fn all_tv_series(config: State<Config>, page_request: PageRequest) -> Json {
     let conn = establish_connection();
     let page = match page_request.page { Some(v) => v, None => 0 };
     let count = match page_request.count { Some(v) => v, None => 10 };
     
     let tv_shows = page_tv_shows(&conn, page, count);
-
-    let ip_address = env!("ROCKET_ADDRESS");
-    let port = env!("ROCKET_PORT");
     
     Json(json!({
         "results": tv_shows.into_iter().map(|m| TvShows { 
             title: m.title,
             background_image: "".to_owned(),
             card_image: "".to_owned(),
-            video_url: format!("http://{}:{}/api/movies/play/{}", ip_address, port, m.id).to_owned(),
+            video_url: format!("http://{}:{}/api/movies/play/{}", config.address, config.port, m.id).to_owned(),
             series: vec![]
         }).collect::<Vec<_>>(),
     }))
