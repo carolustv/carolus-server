@@ -8,3 +8,6 @@ pub mod init;
 pub mod schema;
 pub mod models;
 pub mod movies;
+pub mod tv_shows;
+pub mod tv_series;
+pub mod tv_episodes;

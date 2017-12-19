@@ -1,4 +1,3 @@
--- Your SQL goes here
 CREATE TABLE movies (
   id INTEGER PRIMARY KEY NOT NULL,
   title TEXT NOT NULL,

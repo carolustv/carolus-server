@@ -4,3 +4,4 @@
 db/
 .envrc
 private/**
+.env
