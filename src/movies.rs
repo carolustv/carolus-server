@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use std::io;
+use std::io::{self, Error, ErrorKind};
 use std::path::Path;
 
 use rocket::Route;
@@ -53,11 +53,13 @@ pub fn all_movies(config: State<Config>, page_request: PageRequest) -> Json {
     }))
 }
 
-#[get("/play/<movie_id>")]
-pub fn play_movie(movie_id: i32) -> io::Result<PartialFile>  {
+#[get("/play/<movie_name>")]
+pub fn play_movie(movie_name: String) -> io::Result<PartialFile>  {
     let conn = establish_connection();
-    let movie = get_movie(&conn, movie_id as i64);
-    serve_partial(Path::new(&movie.file_path))
+    match get_movie(&conn, &movie_name) {
+        Ok(movie) => serve_partial(Path::new(&movie.file_path)),
+        Err(_) => Err(Error::new(ErrorKind::NotFound, "")),
+    }
 }
 
 pub fn routes() -> Vec<Route> {

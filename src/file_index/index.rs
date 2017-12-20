@@ -17,7 +17,7 @@ fn index_movie_directory(conn: &SqliteConnection) {
                 let file_path = path.to_str().unwrap();
                 match parse_movie::parse(&file_path) {
                     Ok(Movie{ title, ..}) => {
-                        create_movie(&conn, &title, &file_path);
+                        create_movie(&conn, &title, &format_title(&title), &file_path).unwrap();
                     },
                     Err(err) => info!("Could not parse movie file: {}, err: {}", file_path, err)
                 }
@@ -51,4 +51,23 @@ pub fn index() {
 
     index_movie_directory(&conn);
     index_tv_directory(&conn);
+}
+
+pub fn format_title(title: &str) -> String {
+    title.replace(" ", "-").to_lowercase()
+}
+
+#[test]
+fn american_history_x(){
+    assert_eq!("american-history-x", format_title("American History X"));
+}
+
+#[test]
+fn great_escape(){
+    assert_eq!("great-escape", format_title("Great Escape"));
+}
+
+#[test]
+fn die_hard(){
+    assert_eq!("die-hard", format_title("Die Hard"));
 }

@@ -11,6 +11,7 @@ use chrono::prelude::*;
 pub struct Movie {
     pub id: i32,
     pub title: String,
+    pub formatted_title: String,
     pub file_path: String,
     pub created_date: NaiveDateTime,
 }
@@ -19,6 +20,7 @@ pub struct Movie {
 #[table_name="movies"]
 pub struct NewMovie<'a> {
     pub title: &'a str,
+    pub formatted_title: &'a str,
     pub file_path: &'a str,
     pub created_date: NaiveDateTime,
 }
