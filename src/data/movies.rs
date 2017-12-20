@@ -31,6 +31,13 @@ pub fn create_movie<'a>(conn: &SqliteConnection, movie_title: &'a str, movie_for
     }
 }
 
+pub fn all_movies(conn: &SqliteConnection) -> Vec<Movie> {
+    use data::schema::movies::dsl::*;
+
+    movies.load::<Movie>(conn)
+        .expect("Error loading movies")
+}
+
 pub fn page_movies(conn: &SqliteConnection, page: i64, count: i64) -> Vec<Movie> {
     use data::schema::movies::dsl::*;
 
@@ -45,4 +52,13 @@ pub fn get_movie(conn: &SqliteConnection, movie_formatted_title: &str) -> Result
 
     movies.filter(formatted_title.eq(movie_formatted_title))
         .first::<Movie>(conn)
+}
+
+pub fn update_movie(conn: &SqliteConnection, movie: &Movie) {
+    use data::schema::movies::dsl::*;
+
+    diesel::update(movies.find(movie.id))
+        .set(movie)
+        .execute(conn)
+        .expect("Error updating movie");
 }

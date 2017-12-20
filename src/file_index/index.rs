@@ -1,7 +1,6 @@
 use diesel::sqlite::SqliteConnection;
 use glob::glob;
 
-use data::init::establish_connection;
 use data::movies::create_movie;
 use data::tv_shows::create_tv_show;
 use data::tv_series::create_tv_series;
@@ -54,11 +53,9 @@ fn index_tv_directory(conn: &SqliteConnection) {
     }
 }
 
-pub fn index() {
-    let conn = establish_connection();
-
-    index_movie_directory(&conn);
-    index_tv_directory(&conn);
+pub fn index(conn: &SqliteConnection) {
+    index_movie_directory(conn);
+    index_tv_directory(conn);
 }
 
 pub fn format_title(title: &str) -> String {

@@ -48,8 +48,8 @@ fn all_movies(config: State<Config>, page_request: PageRequest) -> Json {
         "results": movies.into_iter().map(|m| Movie {
             id: m.id,
             title: m.title,
-            background_image: "https://storage.googleapis.com/android-tv/Sample%20videos/Google%2B/Google%2B_%20Instant%20Upload/bg.jpg".to_owned(),
-            card_image: "https://storage.googleapis.com/android-tv/Sample%20videos/Google%2B/Google%2B_%20Instant%20Upload/card.jpg".to_owned(),
+            background_image: match m.backdrop_path { Some(path) => path, None => "".to_owned() },
+            card_image: match m.poster_path { Some(path) => path, None => "".to_owned() },
             video_url: format!("http://{}:{}/api/movies/play/{}", config.address, config.port, m.formatted_title).to_owned()
         }).collect::<Vec<_>>(),
     }))

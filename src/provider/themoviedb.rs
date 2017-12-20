@@ -34,10 +34,14 @@ pub struct TvShow {
     pub first_air_date: Date<Utc>,
 }
 
-pub fn find_movie(client: Client, movie_name: String, year: i32) -> Result<Response<Movie>, Error> {
+pub fn find_movie(client: Client, movie_name: String, year: Option<i32>) -> Result<Response<Movie>, Error> {
     let key = env::var("THE_MOVIE_DB_API_KEY")?;
-    let url = Url::parse_with_params("https://api.themoviedb.org/3/search/movies",
-                &[("api_key", key), ("query", movie_name), ("year", year.to_string())])?;
+    let mut parameters = vec![("api_key", key), ("query", movie_name), ("language", "en-GB".to_owned())];
+    match year {
+        Some(year) => parameters.push(("year", year.to_string())),
+        None => (),
+    }
+    let url = Url::parse_with_params("https://api.themoviedb.org/3/search/movie", &parameters)?;
     Ok(client.get(url).send()?.json()?)
 }
 
