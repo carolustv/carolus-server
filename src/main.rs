@@ -33,8 +33,15 @@ pub mod tv;
 pub mod file_index;
 
 use file_index::index;
+use rocket::fairing::AdHoc;
 
 fn main() {
     index::index();
-    rocket::ignite().mount("/api/movies", movies::routes()).launch();
+    rocket::ignite()
+        .attach(AdHoc::on_attach(|rocket| {
+            let config = rocket.config().clone();
+            Ok(rocket.manage(config))
+        }))
+        .mount("/api/movies", movies::routes())
+        .launch();
 }

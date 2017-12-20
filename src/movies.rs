@@ -31,12 +31,12 @@ pub struct PageRequest {
 }
 
 #[get("/")]
-pub fn all_movies_root(config: State<Config>) -> Json {
+fn all_movies_root(config: State<Config>) -> Json {
     all_movies(config, PageRequest{ page: None, count: None })
 }
 
 #[get("/?<page_request>")]
-pub fn all_movies(config: State<Config>, page_request: PageRequest) -> Json {
+fn all_movies(config: State<Config>, page_request: PageRequest) -> Json {
     let conn = establish_connection();
     let page = match page_request.page { Some(v) => v, None => 0 };
     let count = match page_request.count { Some(v) => v, None => 10 };
@@ -54,7 +54,7 @@ pub fn all_movies(config: State<Config>, page_request: PageRequest) -> Json {
 }
 
 #[get("/play/<movie_name>")]
-pub fn play_movie(movie_name: String) -> io::Result<PartialFile>  {
+fn play_movie(movie_name: String) -> io::Result<PartialFile>  {
     let conn = establish_connection();
     match get_movie(&conn, &movie_name) {
         Ok(movie) => serve_partial(Path::new(&movie.file_path)),
