@@ -18,6 +18,7 @@ use partial_file::{serve_partial, PartialFile};
 
 #[derive(Serialize)]
 pub struct Movie {
+    pub id: i32,
     pub title: String,
     pub background_image: String,
     pub card_image: String,
@@ -44,10 +45,11 @@ pub fn all_movies(config: State<Config>, page_request: PageRequest) -> Json {
     let movies = page_movies(&conn, page, count);
     
     Json(json!({
-        "results": movies.into_iter().map(|m| Movie { 
+        "results": movies.into_iter().map(|m| Movie {
+            id: m.id,
             title: m.title,
-            background_image: "".to_owned(), //m.background_image,
-            card_image: "".to_owned(), //m.card_image,
+            background_image: "https://storage.googleapis.com/android-tv/Sample%20videos/Google%2B/Google%2B_%20Instant%20Upload/bg.jpg".to_owned(),
+            card_image: "https://storage.googleapis.com/android-tv/Sample%20videos/Google%2B/Google%2B_%20Instant%20Upload/card.jpg".to_owned(),
             video_url: format!("http://{}:{}/api/movies/play/{}", config.address, config.port, m.id).to_owned()
         }).collect::<Vec<_>>(),
     }))

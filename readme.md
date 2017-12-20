@@ -29,7 +29,7 @@ You will need this on your path:
 
 A quick way to get started with using tls is included in the repo (taken
 from [Rocket examples](https://github.com/SergioBenitez/Rocket/tree/master/examples/tls)).
-Compile with the `tls` flag and run the following:
+Run the following:
 
 ```bash
 (cd private && bash ./gen_cert.sh)
