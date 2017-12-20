@@ -1,7 +1,7 @@
 CREATE TABLE movies (
   id INTEGER PRIMARY KEY NOT NULL,
-  formatted_title TEXT NOT NULL,
   title TEXT NOT NULL,
+  formatted_title TEXT NOT NULL,
   file_path TEXT NOT NULL,
   created_date DATETIME NOT NULL,
   CONSTRAINT formatted_title_constraint UNIQUE (formatted_title),

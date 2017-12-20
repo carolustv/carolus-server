@@ -10,12 +10,12 @@ use diesel::prelude::*;
 use chrono::prelude::*;
 use diesel;
 
-pub fn create_movie<'a>(conn: &SqliteConnection, movie_title: &'a str, formatted_title: &'a str, movie_file_path: &'a str) -> Result<Movie, diesel::result::Error> {
+pub fn create_movie<'a>(conn: &SqliteConnection, movie_title: &'a str, movie_formatted_title: &'a str, movie_file_path: &'a str) -> Result<Movie, diesel::result::Error> {
     use data::schema::movies::dsl::*;
 
     let new_movie = NewMovie {
         title: movie_title,
-        formatted_title: movie_title,
+        formatted_title: movie_formatted_title,
         file_path: movie_file_path,
         created_date: Utc::now().naive_utc(),
     };

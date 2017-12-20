@@ -46,9 +46,9 @@ fn all_movies(config: State<Config>, page_request: PageRequest) -> Json {
     Json(json!({
         "results": movies.into_iter().map(|m| Movie { 
             title: m.title,
-            background_image: "".to_owned(), //m.background_image,
-            card_image: "".to_owned(), //m.card_image,
-            video_url: format!("http://{}:{}/api/movies/play/{}", config.address, config.port, m.id).to_owned()
+            background_image: "".to_owned(),
+            card_image: "".to_owned(),
+            video_url: format!("http://{}:{}/api/movies/play/{}", config.address, config.port, m.formatted_title).to_owned()
         }).collect::<Vec<_>>(),
     }))
 }
