@@ -3,6 +3,7 @@
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#![recursion_limit="1024"]
 #![feature(custom_derive)]
 #![feature(plugin)]
 #![feature(decl_macro)]
@@ -33,8 +34,19 @@ pub mod tv;
 pub mod file_index;
 
 use file_index::index;
+use rocket::fairing::AdHoc;
+use diesel::sqlite::SqliteConnection;
+use data::init::establish_connection;
 
 fn main() {
-    index::index();
-    rocket::ignite().mount("/api/movies", movies::routes()).launch();
+    let conn = establish_connection();
+    index::index(&conn);
+    provider::refresh_metdata(&conn);
+    rocket::ignite()
+        .attach(AdHoc::on_attach(|rocket| {
+            let config = rocket.config().clone();
+            Ok(rocket.manage(config))
+        }))
+        .mount("/api/movies", movies::routes())
+        .launch();
 }

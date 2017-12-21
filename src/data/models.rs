@@ -7,18 +7,22 @@
 use data::schema::{movies, tv_shows, tv_series, tv_episodes};
 use chrono::prelude::*;
 
-#[derive(Queryable)]
+#[derive(Queryable, AsChangeset)]
 pub struct Movie {
     pub id: i32,
     pub title: String,
+    pub formatted_title: String,
     pub file_path: String,
     pub created_date: NaiveDateTime,
+    pub poster_path: Option<String>,
+    pub backdrop_path: Option<String>,
 }
 
 #[derive(Insertable)]
 #[table_name="movies"]
 pub struct NewMovie<'a> {
     pub title: &'a str,
+    pub formatted_title: &'a str,
     pub file_path: &'a str,
     pub created_date: NaiveDateTime,
 }

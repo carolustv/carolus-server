@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use std::io;
+use std::io::{self, Error, ErrorKind};
 use std::path::Path;
 
 use rocket::Route;
@@ -32,12 +32,12 @@ pub struct PageRequest {
 }
 
 #[get("/")]
-pub fn all_movies_root(config: State<Config>) -> Json {
+fn all_movies_root(config: State<Config>) -> Json {
     all_movies(config, PageRequest{ page: None, count: None })
 }
 
 #[get("/?<page_request>")]
-pub fn all_movies(config: State<Config>, page_request: PageRequest) -> Json {
+fn all_movies(config: State<Config>, page_request: PageRequest) -> Json {
     let conn = establish_connection();
     let page = match page_request.page { Some(v) => v, None => 0 };
     let count = match page_request.count { Some(v) => v, None => 10 };
@@ -48,18 +48,20 @@ pub fn all_movies(config: State<Config>, page_request: PageRequest) -> Json {
         "results": movies.into_iter().map(|m| Movie {
             id: m.id,
             title: m.title,
-            background_image: "https://storage.googleapis.com/android-tv/Sample%20videos/Google%2B/Google%2B_%20Instant%20Upload/bg.jpg".to_owned(),
-            card_image: "https://storage.googleapis.com/android-tv/Sample%20videos/Google%2B/Google%2B_%20Instant%20Upload/card.jpg".to_owned(),
-            video_url: format!("http://{}:{}/api/movies/play/{}", config.address, config.port, m.id).to_owned()
+            background_image: match m.backdrop_path { Some(path) => path, None => "".to_owned() },
+            card_image: match m.poster_path { Some(path) => path, None => "".to_owned() },
+            video_url: format!("http://{}:{}/api/movies/play/{}", config.address, config.port, m.formatted_title).to_owned()
         }).collect::<Vec<_>>(),
     }))
 }
 
-#[get("/play/<movie_id>")]
-pub fn play_movie(movie_id: i32) -> io::Result<PartialFile>  {
+#[get("/play/<movie_name>")]
+fn play_movie(movie_name: String) -> io::Result<PartialFile>  {
     let conn = establish_connection();
-    let movie = get_movie(&conn, movie_id as i64);
-    serve_partial(Path::new(&movie.file_path))
+    match get_movie(&conn, &movie_name) {
+        Ok(movie) => serve_partial(Path::new(&movie.file_path)),
+        Err(_) => Err(Error::new(ErrorKind::NotFound, "")),
+    }
 }
 
 pub fn routes() -> Vec<Route> {

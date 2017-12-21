@@ -10,31 +10,32 @@ use diesel::prelude::*;
 use chrono::prelude::*;
 use diesel;
 
-pub fn create_movie<'a>(conn: &SqliteConnection, movie_title: &'a str, movie_file_path: &'a str) -> Movie {
+pub fn create_movie<'a>(conn: &SqliteConnection, movie_title: &'a str, movie_formatted_title: &'a str, movie_file_path: &'a str) -> Result<Movie, diesel::result::Error> {
     use data::schema::movies::dsl::*;
 
     let new_movie = NewMovie {
         title: movie_title,
+        formatted_title: movie_formatted_title,
         file_path: movie_file_path,
         created_date: Utc::now().naive_utc(),
     };
 
-    let movie_id : Result<i32, _> =
-        movies.filter(file_path.eq(movie_file_path))
-            .select(id)
-            .first(conn);
+    match get_movie(conn, new_movie.formatted_title) {
+        Ok(movie) => Ok(movie),
+        Err(_) => {
+            diesel::insert(&new_movie)
+                .into(schema::movies::table)
+                .execute(conn)?;
+            get_movie(&conn, &new_movie.formatted_title)
+        }
+    }
+}
 
-    let movie_id =
-        match movie_id {
-            Ok(movie_id) => movie_id as usize,
-            Err(_) => {
-                diesel::insert(&new_movie)
-                    .into(schema::movies::table)
-                    .execute(conn)
-                    .expect("Error saving new movie")
-            }
-        };
-    get_movie(conn, movie_id as i64)
+pub fn all_movies(conn: &SqliteConnection) -> Vec<Movie> {
+    use data::schema::movies::dsl::*;
+
+    movies.load::<Movie>(conn)
+        .expect("Error loading movies")
 }
 
 pub fn page_movies(conn: &SqliteConnection, page: i64, count: i64) -> Vec<Movie> {
@@ -46,10 +47,18 @@ pub fn page_movies(conn: &SqliteConnection, page: i64, count: i64) -> Vec<Movie>
         .expect("Error loading movies")
 }
 
-pub fn get_movie(conn: &SqliteConnection, movie_id: i64) -> Movie {
+pub fn get_movie(conn: &SqliteConnection, movie_formatted_title: &str) -> Result<Movie, diesel::result::Error> {
     use data::schema::movies::dsl::*;
 
-    movies.find(movie_id as i32)
+    movies.filter(formatted_title.eq(movie_formatted_title))
         .first::<Movie>(conn)
-        .expect("Error loading movie")
+}
+
+pub fn update_movie(conn: &SqliteConnection, movie: &Movie) {
+    use data::schema::movies::dsl::*;
+
+    diesel::update(movies.find(movie.id))
+        .set(movie)
+        .execute(conn)
+        .expect("Error updating movie");
 }
