@@ -24,11 +24,11 @@ pub fn refresh_metdata(conn: &SqliteConnection) {
 fn look_up_movie(movie_name: &str, year: Option<i32>) -> MovieData {
     let client = Client::new();
     let results = themoviedb::find_movie(client, movie_name.to_owned(), year).unwrap().results;
-    let theMovieDbData = results.first().unwrap();
+    let the_movie_db_data = results.first().unwrap();
     MovieData{
-        title: theMovieDbData.title.clone(),
-        overview: theMovieDbData.overview.clone(),
-        background_image: theMovieDbData.backdrop_path.clone(),
-        card_image: theMovieDbData.poster_path.clone(),
+        title: the_movie_db_data.title.clone(),
+        overview: the_movie_db_data.overview.clone(),
+        background_image: format!("https://image.tmdb.org/t/p/w1920{}", the_movie_db_data.backdrop_path.clone()),
+        card_image: format!("https://image.tmdb.org/t/p/w500{}", the_movie_db_data.poster_path.clone()),
     }
 }

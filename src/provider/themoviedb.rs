@@ -41,6 +41,7 @@ pub fn find_movie(client: Client, movie_name: String, year: Option<i32>) -> Resu
         Some(year) => parameters.push(("year", year.to_string())),
         None => (),
     }
+use failure::Error;
     let url = Url::parse_with_params("https://api.themoviedb.org/3/search/movie", &parameters)?;
     Ok(client.get(url).send()?.json()?)
 }
@@ -71,13 +72,21 @@ mod standard_date_format {
     use chrono::offset::Utc;
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%Y-%m-%d";
+    const FORMAT: &'static str = "%Y-%m-%d %H:%M";
     
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Date<Utc>, D::Error>
         where D: Deserializer<'de>
     {
         let s = String::deserialize(deserializer)?;
-        let x = Utc.datetime_from_str(&s, FORMAT).map_err(serde::de::Error::custom)?;
+        // This is rather silly but there is no Utc.date_from_str version and without the 00:00 the 
+        // Utc.datetime_from_str methods returns an error even if the %Y-%m-%d format
+        let x = Utc.datetime_from_str(&format!("{} 00:00", &s), FORMAT).map_err(serde::de::Error::custom)?;
         Ok(x.date())
+    }
+
+    #[test]
+    fn date_test(){
+        let date = Utc.datetime_from_str("1964-09-12 00:00", FORMAT).unwrap();
+        assert_eq!(date.date(), Utc.ymd(1964, 9, 12))
     }
 }
