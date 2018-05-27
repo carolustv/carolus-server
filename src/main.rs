@@ -12,7 +12,7 @@
 #[macro_use] extern crate log;
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate rocket_contrib;
-extern crate failure;
+#[macro_use] extern crate failure;
 extern crate serde;
 extern crate serde_json;
 extern crate reqwest;

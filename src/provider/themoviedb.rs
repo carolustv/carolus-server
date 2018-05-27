@@ -1,5 +1,6 @@
 use std::env;
 use std::result::Result;
+use std::collections::vec_deque::VecDeque;
 
 use reqwest::Client;
 use url::Url;
@@ -9,7 +10,7 @@ use failure::Error;
 
 #[derive(Deserialize)]
 pub struct Response<T> {
-    pub results: Vec<T>
+    pub results: VecDeque<T>
 }
 
 #[derive(Deserialize)]
