@@ -28,8 +28,8 @@ pub fn create_movie<'a>(conn: &SqliteConnection, movie_title: &'a str, movie_fil
         match movie_id {
             Ok(movie_id) => movie_id as usize,
             Err(_) => {
-                diesel::insert(&new_movie)
-                    .into(schema::movies::table)
+                diesel::insert_into(schema::movies::table)
+                    .values(&new_movie)
                     .execute(conn)
                     .expect("Error saving new movie")
             }

@@ -29,8 +29,8 @@ pub fn create_tv_episode<'a>(conn: &SqliteConnection, tv_episode_series_id: i32,
         match tv_episode_id {
             Ok(tv_episode_id) => tv_episode_id as usize,
             Err(_) => {
-                diesel::insert(&new_tv_episode)
-                    .into(schema::tv_episodes::table)
+                diesel::insert_into(schema::tv_episodes::table)
+                    .values(&new_tv_episode)
                     .execute(conn)
                     .expect("Error saving new tv_episode")
             }

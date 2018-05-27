@@ -21,7 +21,7 @@ You will need this on your path:
 
 ## Database setup
 
-* install diesel_cli for sqlite `cargo install diesel_cli --no-default-features --features-sqlite`
+* install diesel_cli for sqlite `cargo install diesel_cli --no-default-features --features sqlite`
 * set database path `export DATABASE_URL=/path/to/sqlite.db`
 * set up / migrate database `diesel database setup`
 
@@ -40,7 +40,7 @@ cargo run --feature=tls &
 ## Windows
 
 You may currently have some other issues running on Windows, but compling
-with the `sqlite-bundle` feature can help if you compile issues related to
+with the `sqlite-bundle` feature can help if you have issues related to
 sqlite.
 
 ## License

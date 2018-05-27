@@ -27,8 +27,8 @@ pub fn create_tv_show<'a>(conn: &SqliteConnection, tv_show_title: &'a str) -> Tv
         match tv_show_id {
             Ok(tv_show_id) => tv_show_id as usize,
             Err(_) => {
-                diesel::insert(&new_tv_show)
-                    .into(schema::tv_shows::table)
+                diesel::insert_into(schema::tv_shows::table)
+                    .values(&new_tv_show)
                     .execute(conn)
                     .expect("Error saving new tv_show")
             }
