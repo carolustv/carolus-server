@@ -12,7 +12,10 @@ pub struct Movie {
     pub id: i32,
     pub title: String,
     pub file_path: String,
+    pub background_image: Option<String>,
+    pub card_image: Option<String>,
     pub created_date: NaiveDateTime,
+    pub updated_date: NaiveDateTime,
 }
 
 #[derive(Insertable)]
@@ -20,21 +23,26 @@ pub struct Movie {
 pub struct NewMovie<'a> {
     pub title: &'a str,
     pub file_path: &'a str,
-    pub created_date: NaiveDateTime,
+    pub created: NaiveDateTime,
+    pub updated: NaiveDateTime,
 }
 
 #[derive(Queryable)]
 pub struct TvShow {
     pub id: i32,
     pub title: String,
-    pub created_date: NaiveDateTime,
+    pub background_image: Option<String>,
+    pub card_image: Option<String>,
+    pub created: NaiveDateTime,
+    pub updated: NaiveDateTime,
 }
 
 #[derive(Insertable)]
 #[table_name="tv_shows"]
 pub struct NewTvShow<'a> {
     pub title: &'a str,
-    pub created_date: NaiveDateTime,
+    pub created: NaiveDateTime,
+    pub updated: NaiveDateTime,
 }
 
 #[derive(Queryable)]
@@ -42,7 +50,7 @@ pub struct TvSeries {
     pub id: i32,
     pub series_number: i32,
     pub tv_show_id: i32,
-    pub created_date: NaiveDateTime,
+    pub created: NaiveDateTime,
 }
 
 #[derive(Insertable)]
@@ -50,7 +58,7 @@ pub struct TvSeries {
 pub struct NewTvSeries {
     pub series_number: i32,
     pub tv_show_id: i32,
-    pub created_date: NaiveDateTime,
+    pub created: NaiveDateTime,
 }
 
 #[derive(Queryable)]
@@ -59,7 +67,7 @@ pub struct TvEpisode {
     pub tv_series_id: i32,
     pub episode_number: i32,
     pub file_path: String,
-    pub created_date: NaiveDateTime,
+    pub created: NaiveDateTime,
 }
 
 #[derive(Insertable)]
@@ -68,5 +76,5 @@ pub struct NewTvEpisode<'a> {
     pub tv_series_id: i32,
     pub episode_number: i32,
     pub file_path: &'a str,
-    pub created_date: NaiveDateTime,
+    pub created: NaiveDateTime,
 }

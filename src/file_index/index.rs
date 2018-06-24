@@ -7,7 +7,7 @@ use data::tv_shows::create_tv_show;
 use data::tv_series::create_tv_series;
 use data::tv_episodes::create_tv_episode;
 
-use file_index::parse_movie::{self, Movie,};
+use file_index::parse_movie::{self, Movie};
 use file_index::parse_tv::{self, Tv};
 
 fn index_movie_directory(conn: &SqliteConnection) {

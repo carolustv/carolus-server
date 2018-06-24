@@ -17,7 +17,7 @@ pub fn create_tv_episode<'a>(conn: &SqliteConnection, tv_episode_series_id: i32,
         tv_series_id: tv_episode_series_id,
         episode_number: tv_episode_episode_number,
         file_path: tv_episode_file_path,
-        created_date: Utc::now().naive_utc(),
+        created: Utc::now().naive_utc(),
     };
 
     let tv_episode_id : Result<i32, _> =

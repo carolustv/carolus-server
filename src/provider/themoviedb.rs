@@ -8,6 +8,10 @@ use chrono::Date;
 use chrono::offset::Utc;
 use failure::Error;
 
+header! { (XRateLimitLimit, "X-RateLimit-Limit") => [usize] }
+header! { (XRateLimitRemaining, "X-RateLimit-Remaining") => [usize] }
+header! { (XRateLimitReset, "X-RateLimit-Reset") => [u64] }
+
 #[derive(Deserialize)]
 pub struct Response<T> {
     pub results: VecDeque<T>
@@ -42,24 +46,10 @@ pub fn find_movie(client: Client, movie_name: String, year: i32) -> Result<Respo
     Ok(client.get(url).send()?.json()?)
 }
 
-pub fn find_tv_show(client: Client, tv_show_name: String, year: i32) -> Result<Response<Movie>, Error> {
+pub fn find_tv_show(client: Client, tv_show_name: &str, year: i32) -> Result<Response<TvShow>, Error> {
     let key = env::var("THE_MOVIE_DB_API_KEY")?;
     let url = Url::parse_with_params("https://api.themoviedb.org/3/search/tv",
                 &[("api_key", key), ("query", tv_show_name), ("first_air_date_year", year.to_string())])?;
-    Ok(client.get(url).send()?.json()?)
-}
-
-pub fn find_tv_series(client: Client, tv_show_id: i32, series_id: i32) -> Result<Response<Movie>, Error> {
-    let key = env::var("THE_MOVIE_DB_API_KEY")?;
-    let url = Url::parse_with_params(&format!("https://api.themoviedb.org/3/tv/{}/season/{}", tv_show_id, series_id),
-                &[("api_key", key)])?;
-    Ok(client.get(url).send()?.json()?)
-}
-
-pub fn find_tv_episode(client: Client, tv_show_id: i32, series_id: i32, episode_id: i32) -> Result<Response<Movie>, Error> {
-    let key = env::var("THE_MOVIE_DB_API_KEY")?;
-    let url = Url::parse_with_params(&format!("https://api.themoviedb.org/3/tv/{}/season/{}/episode/{}", tv_show_id, series_id, episode_id),
-                &[("api_key", key)])?;
     Ok(client.get(url).send()?.json()?)
 }
 

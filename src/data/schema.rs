@@ -3,7 +3,10 @@ table! {
         id -> Integer,
         title -> Text,
         file_path -> Text,
-        created_date -> Timestamp,
+        background_image -> Nullable<Text>,
+        card_image -> Nullable<Text>,
+        created -> Timestamp,
+        updated -> Timestamp,
     }
 }
 
@@ -13,7 +16,7 @@ table! {
         tv_series_id -> Integer,
         episode_number -> Integer,
         file_path -> Text,
-        created_date -> Timestamp,
+        created -> Timestamp,
     }
 }
 
@@ -22,7 +25,7 @@ table! {
         id -> Integer,
         tv_show_id -> Integer,
         series_number -> Integer,
-        created_date -> Timestamp,
+        created -> Timestamp,
     }
 }
 
@@ -30,7 +33,10 @@ table! {
     tv_shows (id) {
         id -> Integer,
         title -> Text,
-        created_date -> Timestamp,
+        background_image -> Nullable<Text>,
+        card_image -> Nullable<Text>,
+        created -> Timestamp,
+        updated -> Timestamp,
     }
 }
 

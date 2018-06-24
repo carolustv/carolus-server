@@ -39,8 +39,8 @@ pub fn all_movies_root(config: State<Config>) -> Json {
 #[get("/?<page_request>")]
 pub fn all_movies(config: State<Config>, page_request: PageRequest) -> Json {
     let conn = establish_connection();
-    let page = match page_request.page { Some(v) => v, None => 0 };
-    let count = match page_request.count { Some(v) => v, None => 10 };
+    let page = page_request.page.unwrap_or(10);
+    let count = page_request.count.unwrap_or(10);
     
     let movies = page_movies(&conn, page, count);
     

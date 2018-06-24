@@ -16,7 +16,7 @@ pub fn create_tv_series<'a>(conn: &SqliteConnection, tv_series_show_id: i32, tv_
     let new_tv_series = NewTvSeries {
         tv_show_id: tv_series_show_id,
         series_number: tv_series_number,
-        created_date: Utc::now().naive_utc(),
+        created: Utc::now().naive_utc(),
     };
 
     let tv_series_id : Result<i32, _> =

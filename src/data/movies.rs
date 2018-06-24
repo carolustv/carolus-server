@@ -16,7 +16,8 @@ pub fn create_movie<'a>(conn: &SqliteConnection, movie_title: &'a str, movie_fil
     let new_movie = NewMovie {
         title: movie_title,
         file_path: movie_file_path,
-        created_date: Utc::now().naive_utc(),
+        created: Utc::now().naive_utc(),
+        updated: Utc::now().naive_utc(),
     };
 
     let movie_id : Result<i32, _> =
@@ -34,7 +35,19 @@ pub fn create_movie<'a>(conn: &SqliteConnection, movie_title: &'a str, movie_fil
                     .expect("Error saving new movie")
             }
         };
+        
     get_movie(conn, movie_id as i64)
+}
+
+pub fn update_movie_metadata(conn: &SqliteConnection, movie_id: i32, movie_background_image: &str, movie_card_image: &str) {
+    use data::schema::movies::dsl::*;
+
+    diesel::update(schema::movies::table)
+        .filter(id.eq(movie_id))
+        .set((
+            background_image.eq(movie_background_image),
+            card_image.eq(movie_card_image),
+        ));
 }
 
 pub fn page_movies(conn: &SqliteConnection, page: i64, count: i64) -> Vec<Movie> {
@@ -43,6 +56,13 @@ pub fn page_movies(conn: &SqliteConnection, page: i64, count: i64) -> Vec<Movie>
     movies.offset(page * count)
         .limit(count)
         .load::<Movie>(conn)
+        .expect("Error loading movies")
+}
+
+pub fn get_all_movies(conn: &SqliteConnection) -> Vec<Movie> {
+    use data::schema::movies::dsl::*;
+
+    movies.load::<Movie>(conn)
         .expect("Error loading movies")
 }
 
