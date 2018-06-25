@@ -32,9 +32,16 @@ pub mod movies;
 pub mod tv;
 pub mod file_index;
 
+use rocket::config::Config;
+
 use file_index::index;
 
 fn main() {
     index::index();
-    rocket::ignite().mount("/api/movies", movies::routes()).launch();
+    
+    rocket::ignite()
+        .manage(Config::development().unwrap())
+        .mount("/api/movies", movies::routes())
+        .mount("/api/tv", tv::routes())
+        .launch();
 }

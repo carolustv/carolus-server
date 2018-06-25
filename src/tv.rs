@@ -56,7 +56,7 @@ pub fn all_tv_series(config: State<Config>, page_request: PageRequest) -> Json {
             title: m.title,
             background_image: "".to_owned(),
             card_image: "".to_owned(),
-            video_url: format!("http://{}:{}/api/movies/play/{}", config.address, config.port, m.id).to_owned(),
+            video_url: format!("http://{}:{}/api/tv/play/{}", config.address, config.port, m.id).to_owned(),
             series: vec![]
         }).collect::<Vec<_>>(),
     }))

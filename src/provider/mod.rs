@@ -16,7 +16,7 @@ pub struct TvShowData {
     pub background_image: String,
 }
 
-pub fn look_up_movie(movie_name: String, year: i32) -> Result<MovieData, Error> {
+pub fn look_up_movie(movie_name: &str, year: i32) -> Result<MovieData, Error> {
     let client = Client::new();
     let mut results = themoviedb::find_movie(client, movie_name, year)?.results;
     let movie = results.pop_front().ok_or(format_err!("exists"))?;
@@ -29,12 +29,12 @@ pub fn look_up_movie(movie_name: String, year: i32) -> Result<MovieData, Error> 
 }
 
 
-pub fn look_up_tv_show(tv_show_name: String, year: i32) -> Result<MovieData, Error> {
+pub fn look_up_tv_show(tv_show_name: &str, year: i32) -> Result<TvShowData, Error> {
     let client = Client::new();
     let mut results = themoviedb::find_tv_show(client, tv_show_name, year)?.results;
     let tv_show = results.pop_front().ok_or(format_err!("exists"))?;
-    Ok(MovieData{
-        title: tv_show.title,
+    Ok(TvShowData{
+        title: tv_show.name,
         overview: tv_show.overview,
         background_image: tv_show.backdrop_path,
         card_image: tv_show.poster_path,

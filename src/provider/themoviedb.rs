@@ -2,11 +2,12 @@ use std::env;
 use std::result::Result;
 use std::collections::vec_deque::VecDeque;
 
-use reqwest::Client;
-use url::Url;
 use chrono::Date;
+use hyper::header;
 use chrono::offset::Utc;
 use failure::Error;
+use reqwest::Client;
+use url::Url;
 
 header! { (XRateLimitLimit, "X-RateLimit-Limit") => [usize] }
 header! { (XRateLimitRemaining, "X-RateLimit-Remaining") => [usize] }
@@ -39,17 +40,17 @@ pub struct TvShow {
     pub first_air_date: Date<Utc>,
 }
 
-pub fn find_movie(client: Client, movie_name: String, year: i32) -> Result<Response<Movie>, Error> {
-    let key = env::var("THE_MOVIE_DB_API_KEY")?;
+pub fn find_movie(client: Client, movie_name: &str, year: i32) -> Result<Response<Movie>, Error> {
+    let key = &*env::var("THE_MOVIE_DB_API_KEY")?;
     let url = Url::parse_with_params("https://api.themoviedb.org/3/search/movies",
-                &[("api_key", key), ("query", movie_name), ("year", year.to_string())])?;
+                &[("api_key", key), ("query", movie_name), ("year", &*year.to_string())])?;
     Ok(client.get(url).send()?.json()?)
 }
 
 pub fn find_tv_show(client: Client, tv_show_name: &str, year: i32) -> Result<Response<TvShow>, Error> {
-    let key = env::var("THE_MOVIE_DB_API_KEY")?;
+    let key = &*env::var("THE_MOVIE_DB_API_KEY")?;
     let url = Url::parse_with_params("https://api.themoviedb.org/3/search/tv",
-                &[("api_key", key), ("query", tv_show_name), ("first_air_date_year", year.to_string())])?;
+                &[("api_key", key), ("query", tv_show_name), ("first_air_date_year", &*year.to_string())])?;
     Ok(client.get(url).send()?.json()?)
 }
 
