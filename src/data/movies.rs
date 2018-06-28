@@ -4,72 +4,42 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use data::models::{Movie, NewMovie};
-use data::schema;
-use diesel::prelude::*;
-use chrono::prelude::*;
-use diesel;
+use failure::Error;
+use rusqlite::Connection;
+use time::{Timespec, get_time};
 
-pub fn create_movie<'a>(conn: &SqliteConnection, movie_title: &'a str, movie_file_path: &'a str) -> Movie {
-    use data::schema::movies::dsl::*;
+use data::models::Movie;
 
-    let new_movie = NewMovie {
-        title: movie_title,
-        file_path: movie_file_path,
-        created: Utc::now().naive_utc(),
-        updated: Utc::now().naive_utc(),
-    };
+pub fn create_movie<'a>(conn: &Connection, title: &'a str, file_path: &'a str) -> Result<(), Error> {
+    let now = &get_time();
 
-    let movie_id : Result<i32, _> =
-        movies.filter(file_path.eq(movie_file_path))
-            .select(id)
-            .first(conn);
+    conn.execute("INSERT INTO movies (title, file_path, created, updated)
+                  VALUES (?1, ?2, ?3, ?4)",
+                 &[&title, &file_path, now, now])?;
 
-    let movie_id =
-        match movie_id {
-            Ok(movie_id) => movie_id as usize,
-            Err(_) => {
-                diesel::insert_into(schema::movies::table)
-                    .values(&new_movie)
-                    .execute(conn)
-                    .expect("Error saving new movie")
-            }
-        };
-        
-    get_movie(conn, movie_id as i64)
+    Ok(())
 }
 
-pub fn update_movie_metadata(conn: &SqliteConnection, movie_id: i32, movie_background_image: &str, movie_card_image: &str) {
-    use data::schema::movies::dsl::*;
-
-    diesel::update(schema::movies::table)
-        .filter(id.eq(movie_id))
-        .set((
-            background_image.eq(movie_background_image),
-            card_image.eq(movie_card_image),
-        ));
+pub fn update_movie_metadata(_conn: &Connection, movie_id: i32, movie_background_image: &str, movie_card_image: &str) {
+    
 }
 
-pub fn page_movies(conn: &SqliteConnection, page: i64, count: i64) -> Vec<Movie> {
-    use data::schema::movies::dsl::*;
-
-    movies.offset(page * count)
-        .limit(count)
-        .load::<Movie>(conn)
-        .expect("Error loading movies")
+pub fn page_movies(conn: &Connection, page: i64, count: i64) -> Vec<Movie> {
+    vec![]
 }
 
-pub fn get_all_movies(conn: &SqliteConnection) -> Vec<Movie> {
-    use data::schema::movies::dsl::*;
-
-    movies.load::<Movie>(conn)
-        .expect("Error loading movies")
+pub fn get_all_movies(conn: &Connection) -> Vec<Movie> {
+    vec![]
 }
 
-pub fn get_movie(conn: &SqliteConnection, movie_id: i64) -> Movie {
-    use data::schema::movies::dsl::*;
-
-    movies.find(movie_id as i32)
-        .first::<Movie>(conn)
-        .expect("Error loading movie")
+pub fn get_movie(conn: &Connection, movie_id: i64) -> Movie {
+    Movie {
+        id: 1,
+        title: "".to_owned(),
+        file_path: "".to_owned(),
+        background_image: Some("".to_owned()),
+        card_image: Some("".to_owned()),
+        created: Timespec::new(0, 0),
+        updated: Timespec::new(0, 0)
+    }
 }

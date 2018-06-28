@@ -13,12 +13,6 @@ cargo run &
 curl http://localhost:3000/api/movies
 ```
 
-## Dependencies
-
-You will need this on your path:
-
-* [Guessit](https://github.com/guessit-io/guessit)
-
 ## Database setup
 
 * install diesel_cli for sqlite `cargo install diesel_cli --no-default-features --features sqlite`

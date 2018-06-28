@@ -4,53 +4,45 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use data::models::{TvEpisode, NewTvEpisode};
-use data::schema;
-use diesel::prelude::*;
-use chrono::prelude::*;
-use diesel;
+use failure::Error;
+use rusqlite::Connection;
+use time::{Timespec, get_time};
 
-pub fn create_tv_episode<'a>(conn: &SqliteConnection, tv_episode_series_id: i32, tv_episode_episode_number: i32, tv_episode_file_path: &'a str) -> TvEpisode {
-    use data::schema::tv_episodes::dsl::*;
+use data::models::TvEpisode;
 
-    let new_tv_episode = NewTvEpisode {
-        tv_series_id: tv_episode_series_id,
-        episode_number: tv_episode_episode_number,
-        file_path: tv_episode_file_path,
-        created: Utc::now().naive_utc(),
-    };
+pub fn create_tv_episode<'a>(conn: &Connection, show_title: &'a str, series_number: i32, episode_number: i32, file_path: &'a str) -> Result<(), Error> {
+    let now = &get_time();
 
-    let tv_episode_id : Result<i32, _> =
-        tv_episodes.filter(file_path.eq(tv_episode_file_path))
-            .select(id)
-            .first(conn);
+    conn.execute("INSERT INTO tv_shows (title, created, updated)
+                  VALUES (?1, ?2, ?3)",
+                 &[&show_title, now, now])?;
 
-    let tv_episode_id =
-        match tv_episode_id {
-            Ok(tv_episode_id) => tv_episode_id as usize,
-            Err(_) => {
-                diesel::insert_into(schema::tv_episodes::table)
-                    .values(&new_tv_episode)
-                    .execute(conn)
-                    .expect("Error saving new tv_episode")
-            }
-        };
-    get_tv_episode(conn, tv_episode_id as i64)
+    let show_id = conn.last_insert_rowid();
+
+    conn.execute("INSERT INTO tv_series (tv_show_id, series_number, created, updated)
+                  VALUES (?1, ?2, ?3, ?4)",
+                 &[&show_id, &series_number, now, now])?;
+
+    let series_id = conn.last_insert_rowid();
+
+    conn.execute("INSERT INTO tv_episodes (tv_series_id, episode_number, file_path, created, updated)
+                  VALUES (?1, ?2, ?3, ?4, ?5)",
+                 &[&series_id, &episode_number, &file_path, now, now])?;
+
+    Ok(())
 }
 
-pub fn page_tv_episodes(conn: &SqliteConnection, page: i64, count: i64) -> Vec<TvEpisode> {
-    use data::schema::tv_episodes::dsl::*;
-
-    tv_episodes.offset(page * count)
-        .limit(count)
-        .load::<TvEpisode>(conn)
-        .expect("Error loading tv_episodes")
+pub fn page_tv_episodes(conn: &Connection, page: i64, count: i64) -> Vec<TvEpisode> {
+    vec![]
 }
 
-pub fn get_tv_episode(conn: &SqliteConnection, tv_episode_id: i64) -> TvEpisode {
-    use data::schema::tv_episodes::dsl::*;
-
-    tv_episodes.find(tv_episode_id as i32)
-        .first::<TvEpisode>(conn)
-        .expect("Error loading tv_episode")
+pub fn get_tv_episode(conn: &Connection, tv_episode_id: i64) -> TvEpisode {
+    TvEpisode {
+        id: 1,
+        tv_series_id: 1,
+        file_path: "".to_owned(),
+        episode_number: 1,
+        created: Timespec::new(0, 0),
+        updated: Timespec::new(0, 0)
+    }
 }
