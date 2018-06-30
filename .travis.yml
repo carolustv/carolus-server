@@ -2,25 +2,11 @@ dist: trusty
 language: rust
 services: docker
 sudo: required
-before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y sqlite3
-  - pip install guessit --user
-
-env:
-  matrix:
-    - BACKEND=sqlite
-      SQLITE_DATABASE_URL=/tmp/carolus.db
 
 matrix:
   include:
     - env: TARGET=x86_64-unknown-linux-gnu
       rust: nightly
-
-before_script:
-  - echo 'DATABASE_URL="/tmp/carolus.db"' > .env
-  - cargo install diesel_cli --no-default-features --features=sqlite --force
-  - diesel migration run
 
 script:
   - cargo build --verbose --all

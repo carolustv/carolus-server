@@ -2,8 +2,6 @@
 
 [![Build Status](https://travis-ci.org/carolustv/carolus-server.svg?branch=master)](https://travis-ci.org/carolustv/carolus-server)
 
-Currently only runs with nightly.
-
 Quick start:
 
 ```bash
@@ -12,12 +10,6 @@ export CAROLUS_TV_PATH="/my/tv/path"
 cargo run &
 curl http://localhost:3000/api/movies
 ```
-
-## Database setup
-
-* install diesel_cli for sqlite `cargo install diesel_cli --no-default-features --features sqlite`
-* set database path `export DATABASE_URL=/path/to/sqlite.db`
-* set up / migrate database `diesel database setup`
 
 ## TLS support
 
@@ -30,12 +22,6 @@ Run the following:
 export ROCKET_TLS={certs="private/ca_cert.pem",key="private/ca_key.pem"}
 cargo run --feature=tls &
 ```
-
-## Windows
-
-You may currently have some other issues running on Windows, but compling
-with the `sqlite-bundle` feature can help if you have issues related to
-sqlite.
 
 ## License
 
