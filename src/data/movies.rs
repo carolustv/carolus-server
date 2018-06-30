@@ -12,9 +12,9 @@ pub struct Movie {
 }
 
 pub fn page_movies<'a>(movies: &'a Vec<Movie>, page: i64, count: i64) -> Option<&'a [Movie]> {
-    movies.windows(count as usize).skip(page as usize).next()
+    movies.chunks(count as usize).skip(page as usize).next()
 }
 
-pub fn get_movie<'a>(movies: &'a Vec<Movie>, title: &str, year: &Option<u16>) -> Option<&'a Movie> {
-    movies.iter().find(|m|m.title == title && &m.year == year)
+pub fn get_movie<'a>(movies: &'a Vec<Movie>, title: &str, year: Option<u16>) -> Option<&'a Movie> {
+    movies.iter().find(|m|m.title == title && m.year == year)
 }

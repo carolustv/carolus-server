@@ -27,6 +27,7 @@ pub mod tv;
 pub mod file_index;
 
 use std::sync::Arc;
+use std::time::Instant;
 
 use clap::{Arg, App};
 use failure::Error;
@@ -57,8 +58,12 @@ fn main() -> Result<(), Error> {
 
     init_logging(matches.occurrences_of("v"));
 
+    let instant = Instant::now();
+
     let (movies, tv) = index::index(matches.value_of("movie_path"), matches.value_of("tv_path"))?;
     
+    println!("Indexing took: {:?}", instant.elapsed());
+
     rocket::ignite()
         .manage(Arc::new(movies))
         .manage(Arc::new(tv))

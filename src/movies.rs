@@ -63,7 +63,7 @@ pub fn play_movie_without_year(state: State<Arc<Vec<Movie>>>, title: String) -> 
 
 #[get("/play/<title>?<play_request>")]
 pub fn play_movie(state: State<Arc<Vec<Movie>>>, title: String, play_request: PlayRequest) -> Result<io::Result<PartialFile>, Error>  {
-    let movie = get_movie(state.inner(), &title, &play_request.year).ok_or(format_err!("movie not found"))?;
+    let movie = get_movie(state.inner(), &title, play_request.year).ok_or(format_err!("movie not found"))?;
     Ok(serve_partial(Path::new(&movie.file_path)))
 }
 
