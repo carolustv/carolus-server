@@ -16,5 +16,8 @@ pub fn page_movies<'a>(movies: &'a Vec<Movie>, page: i64, count: i64) -> Option<
 }
 
 pub fn get_movie<'a>(movies: &'a Vec<Movie>, title: &str, year: Option<u16>) -> Option<&'a Movie> {
-    movies.iter().find(|m|m.title == title && m.year == year)
+    match movies.iter().find(|m|m.title == title && m.year == year) {
+        None => movies.iter().find(|m|m.title == title),
+        movie => movie,
+    }
 }

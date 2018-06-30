@@ -28,7 +28,11 @@ pub fn page_tv_shows<'a>(tv_shows: &'a Vec<TvShow>, page: i64, count: i64) -> Op
 }
 
 pub fn get_episode<'a> (tv_shows: &'a Vec<TvShow>, title: &str, year: Option<u16>, series: u16, episode: u16) -> Option<(&'a TvShow, &'a TvSeries, &'a TvEpisode)> {
-    let tv_show = tv_shows.iter().find(|s|s.title == title && s.year == year)?;
+    let tv_show =
+        match tv_shows.iter().find(|s|s.title == title && s.year == year) {
+            None => tv_shows.iter().find(|s|s.title == title),
+            tv_show => tv_show,
+        }?;
     let series = tv_show.series.iter().find(|s|s.series_number == series)?;
     let episode = series.episodes.iter().find(|s|s.episode_number == episode)?;
     Some((tv_show, series, episode))

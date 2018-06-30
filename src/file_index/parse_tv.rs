@@ -11,7 +11,7 @@ use regex::Regex;
 
 pub fn parse_season_and_episode(path: &Path) -> Result<(u16, u16), Error> {
     lazy_static! {
-        static ref SEASON_EPISODE_FORMAT_1: Regex = Regex::new(r"S(\d*?)E(\d*)").unwrap();
+        static ref SEASON_EPISODE_FORMAT_1: Regex = Regex::new(r"[Ss](\d*?)[Ee](\d*)").unwrap();
     }
 
     let file_name =
@@ -46,4 +46,3 @@ pub fn parse_title<'a>(base_path: &Path, path: &'a Path) -> Result<(&'a str, Opt
         },
     }
 }
-
