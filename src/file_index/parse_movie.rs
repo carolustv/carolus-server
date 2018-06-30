@@ -9,22 +9,19 @@ use std::path::Path;
 use failure::Error;
 use regex::Regex;
 
-#[derive(Debug)]
-pub struct Movie<'a> { 
-    pub title: &'a str,
-    pub year: Option<i32>,
-}
+use data::movies::Movie;
 
-pub fn parse<'a>(search_path: &Path, path: &'a Path) -> Result<Movie<'a>, Error> {
+pub fn parse<'a>(search_path: &Path, path: &'a Path) -> Result<Movie, Error> {
     let (title, year) = parse_title(search_path, path)?;
 
     Ok(Movie {
-        title: title,
-        year: year
+        title: title.to_owned(),
+        year: year,
+        file_path: path.to_str().ok_or(format_err!("should be a path"))?.to_owned()
     })
 }
 
-fn parse_title<'a>(base_path: &Path, path: &'a Path) -> Result<(&'a str, Option<i32>), Error> {
+fn parse_title<'a>(base_path: &Path, path: &'a Path) -> Result<(&'a str, Option<u16>), Error> {
     lazy_static! {
         static ref TITLE_FORMAT_1: Regex = Regex::new(r"([^']+)\s+\((\d{4})\)").unwrap();
     }
@@ -39,7 +36,7 @@ fn parse_title<'a>(base_path: &Path, path: &'a Path) -> Result<(&'a str, Option<
     match TITLE_FORMAT_1.captures_iter(folder_name).nth(0) {
         Some (cap) => {
             let title = cap.get(1).map(|m| m.as_str()).ok_or(format_err!("failed to parse title"))?;
-            let year = cap.get(2).map(|m| m.as_str()).ok_or(format_err!("failed to parse year"))?.parse::<i32>()?;
+            let year = cap.get(2).map(|m| m.as_str()).ok_or(format_err!("failed to parse year"))?.parse::<u16>()?;
             Ok((title, Some(year)))
         },
         None => {
@@ -59,7 +56,7 @@ fn parse_title<'a>(base_path: &Path, path: &'a Path) -> Result<(&'a str, Option<
 #[test]
 fn a_clockwork_orange(){
     match parse(Path::new("/storage/movies/"), Path::new("/storage/movies/A Clockwork Orange (1971).mkv")) {
-        Ok(Movie { title: "A Clockwork Orange", year: Some (1971) }) => (),
+        Ok(Movie { ref title, year: Some (1971),.. }) if title == "A Clockwork Orange" => (),
         result => assert!(false, "{:?}", result)
     }
 }
@@ -67,7 +64,7 @@ fn a_clockwork_orange(){
 #[test]
 fn american_history_x(){
     match parse(Path::new("/storage/movies/"), Path::new("/storage/movies/American History X.mp4")) {
-        Ok(Movie { title: "American History X", year: None }) => (),
+        Ok(Movie { ref title, year: None,.. }) if title == "American History X" => (),
         result => assert!(false, "{:?}", result)
     }
 }
@@ -75,7 +72,7 @@ fn american_history_x(){
 #[test]
 fn great_escape(){
     match parse(Path::new("/storage/movies/"), Path::new("/storage/movies/Great Escape.m4v")) {
-        Ok(Movie { title: "Great Escape", year: None }) => (),
+        Ok(Movie { ref title, year: None,.. }) if title == "Great Escape" => (),
         result => assert!(false, "{:?}", result)
     }
 }
@@ -83,7 +80,7 @@ fn great_escape(){
 #[test]
 fn die_hard(){
     match parse(Path::new("/storage/movies/"), Path::new("/storage/movies/Die Hard.m4v")) {
-        Ok(Movie { title: "Die Hard", year: None }) => (),
+        Ok(Movie { ref title, year: None,.. }) if title == "Die Hard" => (),
         result => assert!(false, "{:?}", result)
     }
 }

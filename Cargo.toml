@@ -9,25 +9,13 @@ rocket_codegen = "0.3"
 rocket_contrib = { version = "0.3", default-features = false, features = ["json"] }
 serde = "1.0"
 serde_derive = "1.0"
-rusqlite = "0.13.0"
-include_dir = "0.2.1"
-time = "0.1.40"
-libsqlite3-sys = "0.9"
-chrono = "0.4"
-reqwest = "0.8"
-url = "1.7"
-serde_json = "1.0"
 glob = "0.2"
-blake2 = "0.6"
-base64 = "0.7"
 regex = "0.2"
 log = "0.4"
 failure = "0.1"
-hyper = "0.10"
 clap = "2.31"
 simplelog = "0.5"
 lazy_static = "1.0"
 
 [features]
 tls = ["rocket/tls"]
-sqlite-bundled = ["libsqlite3-sys/bundled"]

@@ -6,28 +6,27 @@
 
 use std::io;
 use std::path::Path;
+use std::sync::Arc;
 
 use failure::Error;
-use rocket::Route;
+use rocket::{Route, State};
 use rocket_contrib::Json;
 
-use data::init::establish_connection;
-use data::tv_shows::page_tv_shows;
-use data::tv_episodes::get_tv_episode;
+use data::tv::{get_episode, page_tv_shows, TvShow};
 use partial_file::{serve_partial, PartialFile};
 
 #[derive(Serialize)]
-pub struct TvSeries {
-    pub series: i32,
-    pub episodes: Vec<i32>
+pub struct TvSeriesJson {
+    pub series: u16,
+    pub episodes: Vec<u16>
 }
 
 #[derive(Serialize)]
-pub struct TvShows {
+pub struct TvShowJson {
     pub title: String,
     pub background_image: String,
     pub card_image: String,
-    pub series: Vec<TvSeries>,
+    pub series: Vec<TvSeriesJson>,
 }
 
 #[derive(FromForm)]
@@ -37,35 +36,43 @@ pub struct PageRequest {
 }
 
 #[get("/")]
-pub fn all_tv_shows_root() -> Result<Json, Error> {
-    all_tv_shows(PageRequest{ page: None, count: None })
+pub fn all_tv_shows_root(state: State<Arc<Vec<TvShow>>>) -> Result<Json, Error> {
+    all_tv_shows(state, PageRequest{ page: None, count: None })
 }
 
 #[get("/?<page_request>")]
-pub fn all_tv_shows(page_request: PageRequest) -> Result<Json, Error> {
-    let conn = establish_connection()?;
+pub fn all_tv_shows(state: State<Arc<Vec<TvShow>>>, page_request: PageRequest) -> Result<Json, Error> {
     let page = page_request.page.unwrap_or(0);
-    let count = page_request.count.unwrap_or(1);
+    let count = page_request.count.unwrap_or(10);
     
-    let tv_shows = page_tv_shows(&conn, page, count);
+    let tv_shows = page_tv_shows(state.inner(), page, count).ok_or(format_err!("failed to get tv shows"))?;
     
     Ok(Json(json!({
-        "results": tv_shows.into_iter().map(|(tv_show, tv_series)| TvShows { 
-            title: tv_show.title,
+        "results": tv_shows.into_iter().map(|tv_show| TvShowJson { 
+            title: tv_show.title.to_owned(),
             background_image: "".to_owned(),
             card_image: "".to_owned(),
-            series: tv_series.iter().map(|(tv_series, episodes)| TvSeries { series: tv_series.series_number, episodes: episodes.iter().map(|e|e.episode_number).collect() }).collect()
+            series: tv_show.series.iter().map(|series| TvSeriesJson { series: series.series_number, episodes: series.episodes.iter().map(|e|e.episode_number).collect() }).collect()
         }).collect::<Vec<_>>(),
     })))
 }
 
-#[get("/play/<episode_id>")]
-pub fn play_episode(episode_id: i32) -> Result<io::Result<PartialFile>, Error>  {
-    let conn = establish_connection()?;
-    let movie = get_tv_episode(&conn, episode_id as i64);
-    Ok(serve_partial(Path::new(&movie.file_path)))
+#[derive(FromForm)]
+pub struct PlayRequest {
+    year: Option<u16>,
+}
+
+#[get("/play/<show_title>/<series_number>/<episode_number>")]
+pub fn play_episode_without_year(state: State<Arc<Vec<TvShow>>>, show_title: String, series_number: u16, episode_number: u16) -> Result<io::Result<PartialFile>, Error> {
+    play_episode(state, show_title, series_number, episode_number, PlayRequest{ year: None })
+}
+
+#[get("/play/<show_title>/<series_number>/<episode_number>?<play_request>")]
+pub fn play_episode(state: State<Arc<Vec<TvShow>>>, show_title: String, series_number: u16, episode_number: u16, play_request: PlayRequest) -> Result<io::Result<PartialFile>, Error>  {
+    let (_, _, episode) = get_episode(state.inner(), &show_title, play_request.year, series_number, episode_number).ok_or(format_err!("failed to get tv shows"))?;
+    Ok(serve_partial(Path::new(&episode.file_path)))
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![all_tv_shows_root, all_tv_shows, play_episode]
+    routes![all_tv_shows_root, all_tv_shows, play_episode_without_year, play_episode]
 }
