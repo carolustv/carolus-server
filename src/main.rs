@@ -20,8 +20,7 @@ extern crate simplelog;
 
 pub mod data;
 pub mod partial_file;
-pub mod movies;
-pub mod tv;
+pub mod media_api;
 pub mod file_index;
 
 use std::sync::Arc;
@@ -54,7 +53,7 @@ fn main() -> Result<(), Error> {
                 .help("Sets the tv directory"))
             .get_matches();
 
-    init_logging(matches.occurrences_of("v"));
+    init_logging(matches.occurrences_of("v"))?;
 
     let instant = Instant::now();
 
@@ -65,14 +64,14 @@ fn main() -> Result<(), Error> {
     rocket::ignite()
         .manage(Arc::new(movies))
         .manage(Arc::new(tv))
-        .mount("/api/movies", movies::routes())
-        .mount("/api/tv", tv::routes())
+        .mount("/api/movies", media_api::movie_routes())
+        .mount("/api/tv", media_api::tv_routes())
         .launch();
 
     Ok(())
 }
 
-fn init_logging(level: u64) {
+fn init_logging(level: u64) -> Result<(), Error> {
     let log_filter =
         match level {
             0 => LevelFilter::Warn,
@@ -81,5 +80,6 @@ fn init_logging(level: u64) {
             _ => LevelFilter::Trace,
         };
 
-    TermLogger::init(log_filter, Default::default()).unwrap();
+    //TermLogger::init(log_filter, Default::default())?;
+    Ok(())
 }

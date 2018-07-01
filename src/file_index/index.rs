@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::ffi::OsStr;
 use std::fs::read_dir;
 use std::iter::FromIterator;
@@ -13,20 +13,19 @@ use std::path::Path;
 use failure::Error;
 use glob::glob;
 
-use data::movies::Movie;
-use data::tv::{TvShow, TvSeries, TvEpisode};
+use data::{Movie, TvShow, TvSeries, TvEpisode};
 use file_index::parse_movie;
 use file_index::parse_tv;
 
 lazy_static! {
-    static ref FILE_TYPES: HashSet<&'static str> = HashSet::from_iter(vec!["mp4", "mkv", "flv", "m4v"]);
+    static ref FILE_TYPES: HashSet<&'static str> = HashSet::from_iter(vec!["mp4", "mkv", "flv", "m4v", "avi"]);
 }
 
 fn index_movie_directory(directory: Option<&str>) -> Result<Vec<Movie>, Error> {
     match directory {
         Some (directory) => {
             let root_dir = Path::new(directory);
-            let mut result = Vec::new();
+            let mut result = BTreeMap::new();
             for entry in read_dir(root_dir)? {
                 let entry = entry?;
                 let path = entry.path();
@@ -34,13 +33,13 @@ fn index_movie_directory(directory: Option<&str>) -> Result<Vec<Movie>, Error> {
                     match parse_movie::parse(&root_dir, &path) {
                         Ok(movie) => {
                             trace!("Found movie: {}, year: {:?}, file: {:?}", movie.title, movie.year, movie.file_path);
-                            result.push(movie);
+                            result.insert((movie.title.clone(), movie.year), movie);
                         },
                         Err(err) => warn!("Could not parse movie file: {:?}, err: {}", path, err)
                     }
                 }
             }
-            Ok(result)
+            Ok(result.into_iter().map(|(_, v)|v).collect())
         },
         None => Ok(vec![]),
     }
@@ -50,7 +49,7 @@ fn index_tv_directory(directory: Option<&str>) -> Result<Vec<TvShow>, Error> {
     match directory {
         Some (directory) => {
             let root_dir = Path::new(directory);
-            let mut result = Vec::new();
+            let mut result = BTreeMap::new();
             for entry in read_dir(root_dir)? {
                 let entry = entry?;
                 let path = entry.path();
@@ -59,7 +58,7 @@ fn index_tv_directory(directory: Option<&str>) -> Result<Vec<TvShow>, Error> {
                         Ok((title, year)) => {
                             match index_tv_show(title, &path) {
                                 Ok(series) => {
-                                    result.push(TvShow { title: title.to_owned(), year, series: series });
+                                    result.insert((title.to_owned(), year), TvShow { title: title.to_owned(), year, series: series });
                                 },
                                 Err(err) => warn!("Could not parse tv series: {:?}, err: {}", path, err),
                             }
@@ -68,7 +67,7 @@ fn index_tv_directory(directory: Option<&str>) -> Result<Vec<TvShow>, Error> {
                     }
                 }
             }
-            Ok(result)
+            Ok(result.into_iter().map(|(_, v)|v).collect())
         },
         None => Ok(vec![]),
     }

@@ -11,6 +11,13 @@ cargo run &
 curl http://localhost:3000/api/movies
 ```
 
+## Build Docker Image
+
+```bash
+cargo build --release
+docker build -t carolustv/carolus .
+```
+
 ## TLS support
 
 A quick way to get started with using tls is included in the repo (taken

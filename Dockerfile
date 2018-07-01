@@ -1,13 +1,11 @@
 FROM rust:latest
 
-RUN apt-get update && apt-get install -y \
-  sqlite3
+ADD . /
 
-ADD db/carolus.db /
-ADD target/release/carolus /
+RUN rustup default nightly
 
-RUN chmod +x ./carolus
+RUN cargo build --release
 
 EXPOSE 8000
 
-ENTRYPOINT ["./carolus"]
+ENTRYPOINT ["/target/release/carolus"]

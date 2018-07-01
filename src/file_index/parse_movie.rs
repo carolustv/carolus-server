@@ -9,7 +9,7 @@ use std::path::Path;
 use failure::Error;
 use regex::Regex;
 
-use data::movies::Movie;
+use data::Movie;
 
 pub fn parse<'a>(search_path: &Path, path: &'a Path) -> Result<Movie, Error> {
     let (title, year) = parse_title(search_path, path)?;
