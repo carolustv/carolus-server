@@ -15,9 +15,9 @@ pub fn page_movies<'a>(movies: &'a Vec<Movie>, page: i64, count: i64) -> Option<
     movies.chunks(count as usize).skip(page as usize).next()
 }
 
-pub fn get_movie<'a>(movies: &'a Vec<Movie>, title: &String, year: Option<u16>) -> Option<&'a Movie> {
-    match movies.binary_search_by(|m|(&m.title, m.year).cmp(&(title, year))).ok().map_or(None, |i|movies.get(i)) {
-        None => movies.binary_search_by(|m|m.title.cmp(&title)).ok().map_or(None, |i|movies.get(i)),
+pub fn get_movie<'a>(movies: &'a Vec<Movie>, title: &str, year: Option<u16>) -> Option<&'a Movie> {
+    match movies.iter().find(|m|m.title.eq_ignore_ascii_case(title) && m.year == year) {
+        None => movies.iter().find(|m|m.title.eq_ignore_ascii_case(title)),
         movie => movie,
     }
 }
@@ -45,10 +45,10 @@ pub fn page_tv_shows<'a>(tv_shows: &'a Vec<TvShow>, page: i64, count: i64) -> Op
     tv_shows.chunks(count as usize).skip(page as usize).next()
 }
 
-pub fn get_episode<'a> (tv_shows: &'a Vec<TvShow>, title: &String, year: Option<u16>, series: u16, episode: u16) -> Option<(&'a TvShow, &'a TvSeries, &'a TvEpisode)> {
+pub fn get_episode<'a> (tv_shows: &'a Vec<TvShow>, title: &str, year: Option<u16>, series: u16, episode: u16) -> Option<(&'a TvShow, &'a TvSeries, &'a TvEpisode)> {
     let tv_show =
-        match tv_shows.binary_search_by(|m|(&m.title, m.year).cmp(&(title, year))).ok().map_or(None, |i|tv_shows.get(i)) {
-            None => tv_shows.binary_search_by(|m|m.title.cmp(&title)).ok().map_or(None, |i|tv_shows.get(i)),
+        match tv_shows.iter().find(|s|s.title.eq_ignore_ascii_case(title) && s.year == year) {
+            None => tv_shows.iter().find(|s|s.title.eq_ignore_ascii_case(title)),
             tv_show => tv_show,
         }?;
     let series = tv_show.series.iter().find(|s|s.series_number == series)?;

@@ -16,20 +16,19 @@ extern crate regex;
 extern crate glob;
 extern crate rocket;
 extern crate clap;
-extern crate simplelog;
+extern crate simple_logger;
 
-pub mod data;
-pub mod partial_file;
-pub mod media_api;
-pub mod file_index;
+mod data;
+mod file_index;
+mod media_api;
+mod partial_file;
 
 use std::sync::Arc;
 use std::time::Instant;
 
 use clap::{Arg, App};
 use failure::Error;
-use log::LevelFilter;
-use simplelog::TermLogger;
+use log::Level;
 
 use file_index::index;
 
@@ -72,14 +71,14 @@ fn main() -> Result<(), Error> {
 }
 
 fn init_logging(level: u64) -> Result<(), Error> {
-    let log_filter =
+    let log_level =
         match level {
-            0 => LevelFilter::Warn,
-            1 => LevelFilter::Info,
-            2 => LevelFilter::Debug,
-            _ => LevelFilter::Trace,
+            0 => Level::Warn,
+            1 => Level::Info,
+            2 => Level::Debug,
+            _ => Level::Trace,
         };
 
-    //TermLogger::init(log_filter, Default::default())?;
+    simple_logger::init_with_level(log_level)?;
     Ok(())
 }

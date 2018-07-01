@@ -80,6 +80,7 @@ pub struct TvSeriesJson {
 #[derive(Serialize)]
 pub struct TvShowJson {
     pub title: String,
+    pub year: Option<u16>,
     pub background_image: String,
     pub card_image: String,
     pub series: Vec<TvSeriesJson>,
@@ -100,6 +101,7 @@ pub fn all_tv_shows(state: State<Arc<Vec<TvShow>>>, page_request: PageRequest) -
     Ok(Json(json!({
         "results": tv_shows.into_iter().map(|tv_show| TvShowJson { 
             title: tv_show.title.to_owned(),
+            year: tv_show.year,
             background_image: "".to_owned(),
             card_image: "".to_owned(),
             series: tv_show.series.iter().map(|series| TvSeriesJson { series: series.series_number, episodes: series.episodes.iter().map(|e|e.episode_number).collect() }).collect()
